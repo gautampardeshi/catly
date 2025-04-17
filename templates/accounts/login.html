@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Login | Vital Care</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-blue-100 to-blue-200 min-h-screen flex items-center justify-center px-4">
+  <form method="post" class="max-w-md w-full bg-white p-8 rounded-xl shadow-2xl space-y-6">
+    {% csrf_token %}
+
+    <!-- Heading -->
+    <h2 class="text-3xl font-bold text-center text-gray-800 mb-4">Welcome Back</h2>
+    <p class="text-center text-gray-500 mb-6">Please login to your account</p>
+
+    <!-- Username Field -->
+    <div>
+      <label for="username" class="block text-gray-700 font-medium mb-2">Username</label>
+      <input type="text" id="username" name="username" placeholder="Enter your username" required
+             class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-800 placeholder-gray-400">
+    </div>
+
+    <!-- Password Field -->
+    <div>
+      <label for="password" class="block text-gray-700 font-medium mb-2">Password</label>
+      <input type="password" id="password" name="password" placeholder="Enter your password" required
+             class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-800 placeholder-gray-400">
+    </div>
+
+    <!-- Forgot Password Link -->
+    <div class="text-right">
+      <a href="#" class="text-sm text-blue-600 hover:text-blue-800 transition duration-300">Forgot Password?</a>
+    </div>
+
+    <!-- Login Button -->
+    <button type="submit"
+            class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
+      Login
+    </button>
+
+    <!-- Error Message -->
+    {% if error %}
+      <p class="mt-4 text-red-600 text-center">{{ error }}</p>
+    {% endif %}
+
+    <!-- Signup Link -->
+    <div class="text-center mt-4">
+      <p class="text-sm text-gray-500">Don't have an account?
+        <a href="{% url 'user:signup' %}" class="text-blue-600 hover:text-blue-800 transition duration-300">Sign Up</a>
+      </p>
+    </div>
+  </form>
+
+  <!-- JavaScript for Form Validation -->
+  <script>
+    const form = document.querySelector('form');
+    const username = document.querySelector('#username');
+    const password = document.querySelector('#password');
+
+    form.addEventListener('submit', (e) => {
+      if (username.value.trim() === '' || password.value.trim() === '') {
+        e.preventDefault();
+        alert('Please fill in both username and password.');
+      }
+    });
+  </script>
+</body>
+</html>
