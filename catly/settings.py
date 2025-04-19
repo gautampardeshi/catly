@@ -83,6 +83,8 @@ WSGI_APPLICATION = 'catly.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+import dj_database_url
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -91,6 +93,8 @@ DATABASES = {
         'PASSWORD': 'gautam0909',
         'HOST': 'localhost',
         'PORT': '5432',
+        'default': dj_database_url.config(default=os.environ.get('DATABASE_URL'))
+
     }
 }
 
