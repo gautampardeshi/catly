@@ -67,7 +67,7 @@ class ConsumerDashboardView(LoginRequiredMixin, View):
         return render(request, 'accounts/consumer_dashboard.html')
     
 def cart_detail(request):
-    return render(request, 'accounts/cart_detail.html')
+    return render(request, 'cart_detail.html')
 
 from django.views import View
 from django.shortcuts import render
@@ -92,3 +92,28 @@ class AIChatView(View):
 
         return JsonResponse({'reply': reply})
 
+from django.views.generic import FormView
+from django.urls import reverse_lazy
+from django.core.mail import send_mail
+from django.conf import settings
+from .forms import ContactForm
+
+class ContactView(FormView):
+    template_name = "accounts/contact.html"
+    form_class = ContactForm
+    success_url = reverse_lazy('user:contact')  # Redirect to same page on success
+
+    def form_valid(self, form):
+        name = form.cleaned_data['name']
+        email = form.cleaned_data['email']
+        message = form.cleaned_data['message']
+
+        # Send Email (Optional)
+        send_mail(
+            subject='New Contact Form Submission',
+            message='Message content goes here...',
+            from_email='noreply@yourdomain.com',
+            recipient_list=[settings.ADMIN_EMAIL],
+        )
+
+        return super().form_valid(form)

@@ -63,7 +63,7 @@ import os
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates')],
+        'DIRS': [BASE_DIR/ 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -80,6 +80,8 @@ TEMPLATES = [
 WSGI_APPLICATION = 'catly.wsgi.application'
 
 
+ADMIN_EMAIL = 'pardeshigautam98@gmail.com'
+
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
@@ -91,6 +93,8 @@ DATABASES = {
         conn_max_age=600,
     )
 }
+
+
 
 
 # Password validation
