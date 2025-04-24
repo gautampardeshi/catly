@@ -106,7 +106,7 @@ class ContactView(FormView):
     def form_valid(self, form):
         name = form.cleaned_data['name']
         email = form.cleaned_data['email']
-        phone_number = form.cleaned_['phone number']
+        phone_number = form.cleaned_data['phone_number']
         message = form.cleaned_data['message']
 
         # ✅ Make sure this is NOT commented
