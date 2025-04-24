@@ -1,0 +1,78 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>About Us | Catly</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+    <!-- Navbar -->
+    <nav class="bg-white shadow fixed top-0 left-0 right-0 z-50">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+            <a href="#" class="text-xl font-bold text-blue-600">Catly</a>
+            <div class="space-x-6">
+                <a href="{% url 'user:home' %}" class="hover:text-blue-600">Home</a>
+                <a href="{% url 'user:contact' %}" class="hover:text-blue-600">Contact</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="max-w-5xl mx-auto mt-32 px-6 py-10 bg-white rounded-lg shadow-md">
+        <h1 class="text-4xl font-extrabold text-center text-blue-600 mb-8">🐾 About Catly</h1>
+
+        <p class="text-lg mb-6">
+            Welcome to <strong>Catly</strong> – a modern, user-friendly e-commerce platform built with Django and Tailwind CSS.
+            Catly is more than just a website; it reflects my passion for web development and commitment to delivering high-quality digital solutions.
+        </p>
+
+        <h2 class="text-2xl font-bold text-blue-500 mt-10 mb-2">👤 About the Developer</h2>
+        <p class="mb-6">
+            Hi, I’m <strong>Gautam Pardeshi</strong> from Hoshangabad – a passionate and detail-oriented full-stack web developer with a strong foundation in Python, Django, JavaScript, HTML, CSS, PostgreSQL, and REST APIs.
+            I am currently enhancing my technical skills through advanced training at <strong>SKED Group</strong>.
+        </p>
+
+        <ul class="list-disc pl-6 mb-6 space-y-1">
+            <li>🔒 Full authentication system with role-based access</li>
+            <li>📦 Dynamic product listing and cart functionality</li>
+            <li>💌 Contact form with email integration (SMTP)</li>
+            <li>📱 Fully responsive UI with Tailwind CSS</li>
+            <li>🌐 Deployment on Render for live access</li>
+        </ul>
+
+        <h2 class="text-2xl font-bold text-blue-500 mt-10 mb-2">💼 My Contributions</h2>
+        <p class="mb-6">
+            I’ve personally handled every aspect of Catly – from backend logic and database design to frontend styling and user experience.
+            This project demonstrates my ability to:
+        </p>
+
+        <ul class="list-disc pl-6 mb-6 space-y-1">
+            <li>✅ Work independently on full-stack development</li>
+            <li>✅ Integrate APIs and handle secure data flow</li>
+            <li>✅ Write clean, maintainable, and scalable code</li>
+            <li>✅ Understand user-centric design and responsive layouts</li>
+        </ul>
+
+        <h2 class="text-2xl font-bold text-blue-500 mt-10 mb-2">🚀 Future Goals</h2>
+        <p class="mb-6">
+            My goal is to continue building powerful, scalable, and user-friendly applications. I'm particularly interested in:
+        </p>
+
+        <ul class="list-disc pl-6 mb-6 space-y-1">
+            <li>🔍 Working with tech startups or product-based companies</li>
+            <li>☁️ Learning more about cloud deployment (AWS, Azure)</li>
+            <li>🤖 Diving deeper into machine learning and AI</li>
+        </ul>
+
+        <h2 class="text-2xl font-bold text-blue-500 mt-10 mb-2">📫 Let's Connect</h2>
+        <p>
+            I’m actively looking for internship or job opportunities where I can contribute to impactful projects and grow as a developer.
+            If you’re a recruiter or a company representative visiting Catly, thank you for your time – I’d love to hear from you!
+        </p>
+    </div>
+
+</body>
+</html>

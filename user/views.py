@@ -12,6 +12,7 @@ from django.core.mail import send_mail
 from django.conf import settings
 from .forms import ContactForm
 from django.urls import reverse_lazy
+from django.views.generic import TemplateView
 
 # Home page
 def home(request):
@@ -119,3 +120,6 @@ class ContactView(FormView):
 
         messages.success(self.request, "Your message was submitted successfully!")
         return super().form_valid(form)
+
+class AboutView(TemplateView):
+    template_name = 'accounts/About.html'

@@ -11,7 +11,8 @@ from .views import (
     ConsumerDashboardView,
     cart_detail,
     AIChatView,
-    ContactView
+    ContactView,
+    AboutView,
     )
 
 app_name = 'user'
@@ -27,6 +28,8 @@ urlpatterns = [
     path('cart/', cart_detail, name='cart_detail'),
     path('ai-chat/', AIChatView.as_view(), name='ai_chat'),
     path("accounts/contact/", ContactView.as_view(), name="contact"),
+    path('about/', AboutView.as_view(), name='about'),  # ✅ yeh line add karo
+
 
 
 ]
