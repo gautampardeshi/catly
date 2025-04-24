@@ -6,6 +6,12 @@ from django.contrib.auth.views import LogoutView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .forms import SignUpForm
 from .models import CustomUser
+from django.views.generic.edit import FormView
+from django.contrib import messages
+from django.core.mail import send_mail
+from django.conf import settings
+from .forms import ContactForm
+from django.urls import reverse_lazy
 
 # Home page
 def home(request):
@@ -92,28 +98,24 @@ class AIChatView(View):
 
         return JsonResponse({'reply': reply})
 
-from django.views.generic import FormView
-from django.urls import reverse_lazy
-from django.core.mail import send_mail
-from django.conf import settings
-from .forms import ContactForm
-
 class ContactView(FormView):
-    template_name = "accounts/contact.html"
+    template_name = 'accounts/contact.html'
     form_class = ContactForm
-    success_url = reverse_lazy('user:contact')  # Redirect to same page on success
+    success_url = reverse_lazy('user:contact')
 
     def form_valid(self, form):
         name = form.cleaned_data['name']
         email = form.cleaned_data['email']
+        phone_number = form.cleaned_['phone number']
         message = form.cleaned_data['message']
 
-        # Send Email (Optional)
+        # ✅ Make sure this is NOT commented
         send_mail(
             subject='New Contact Form Submission',
-            message='Message content goes here...',
-            from_email='noreply@yourdomain.com',
+            message=f'Name: {name}\nEmail: {email}\nMessage: {message}\nphone_number:{phone_number}',
+            from_email=settings.EMAIL_HOST_USER,
             recipient_list=[settings.ADMIN_EMAIL],
         )
 
+        messages.success(self.request, "Your message was submitted successfully!")
         return super().form_valid(form)
