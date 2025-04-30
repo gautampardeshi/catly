@@ -198,7 +198,7 @@ class RemoveFromCartView(View):
     @method_decorator(login_required)
     def post(self, request, cart_item_id):
         CartItem.objects.filter(id=cart_item_id).delete()
-        return redirect('cart:cart_detail')
+        return redirect('user:cart_detail')
 
 
 class UpdateCartView(View):
@@ -213,7 +213,7 @@ class UpdateCartView(View):
         else:
             cart_item.delete()
 
-        return redirect('cart:cart_detail')
+        return redirect('user:cart_detail')
 
 
 class CartDetail(TemplateView):
@@ -223,7 +223,11 @@ class CartDetail(TemplateView):
         context = super().get_context_data(**kwargs)
         cart, _ = Cart.objects.get_or_create(user=self.request.user)
         cart_items = CartItem.objects.filter(cart=cart)
-        total_price = sum(item.product.price * item.quantity for item in cart_items)
+
+        total_price = 0
+        for item in cart_items:
+            item.subtotal = item.product.price * item.quantity
+            total_price += item.subtotal
 
         context['cart_items'] = cart_items
         context['total_price'] = total_price

@@ -18,12 +18,24 @@
               <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" class="w-20 h-20 object-cover rounded-lg mr-4">
               <div>
                 <h3 class="font-semibold text-lg">{{ item.product.name }}</h3>
-                <p class="text-gray-500">₹{{ item.product.price }}</p>
+                <p class="text-gray-500">Price: ₹{{ item.product.price }}</p>
+                <p class="text-sm text-gray-600">Subtotal: ₹{{ item.subtotal }}</p>
               </div>
             </div>
-            <div class="text-right">
-              <p class="text-sm text-gray-700">Qty: {{ item.quantity }}</p>
-              <p class="text-green-600 font-bold">₹{{ item.product.price|floatformat:2 }}</p>
+
+            <div class="flex items-center space-x-4">
+              <!-- Update quantity form -->
+              <form action="{% url 'user:update_cart' item.id %}" method="POST" class="flex items-center space-x-2">
+                {% csrf_token %}
+                <input type="number" name="quantity" value="{{ item.quantity }}" min="1" class="w-16 border rounded p-1 text-center">
+                <button type="submit" class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600">Update</button>
+              </form>
+
+              <!-- Remove item form -->
+              <form action="{% url 'user:remove_from_cart' item.id %}" method="POST" onsubmit="return confirm('Are you sure you want to remove this item?');">
+                {% csrf_token %}
+                <button type="submit" class="text-red-600 hover:text-red-800">🗑 Remove</button>
+              </form>
             </div>
           </div>
         {% endfor %}
