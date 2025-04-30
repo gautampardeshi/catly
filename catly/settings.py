@@ -57,6 +57,9 @@ MIDDLEWARE = [
     'whitenoise.middleware.WhiteNoiseMiddleware',
 
 ]
+LOGIN_URL = '/login/'  # jab user authenticated nahi hota
+LOGOUT_REDIRECT_URL = '/login/'  # logout ke baad yaha bhejna hai
+
 
 ROOT_URLCONF = 'catly.urls'
 import os
@@ -88,13 +91,18 @@ ADMIN_EMAIL = 'pardeshigautam98@gmail.com'
 import dj_database_url
 
 DATABASES = {
-    'default': dj_database_url.config(
-        default=os.environ.get("DATABASE_URL"),
-        conn_max_age=600,
+    # 'default': dj_database_url.config(
+    #     default=os.environ.get("DATABASE_URL"),
+    #     conn_max_age=600,
+        'default': dj_database_url.config(
+        default='postgres://postgres:gautam0909@localhost:5432/catly_db',
+        conn_max_age=600
     )
 }
 
-
+SESSION_COOKIE_AGE = 1209600  # 2 weeks
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # Session expires when the browser is closed
+SESSION_SAVE_EVERY_REQUEST = True
 
 
 # Password validation

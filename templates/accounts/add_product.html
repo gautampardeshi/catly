@@ -1,0 +1,61 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Product</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="font-sans bg-gray-50 text-gray-900">
+
+<header class="bg-blue-600 text-white">
+    <nav class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+        <div class="text-xl font-semibold">E-Commerce</div>
+        <div class="space-x-4">
+            <a href="/" class="hover:text-gray-300">Home</a>
+            <a href="/add-product/" class="hover:text-gray-300">Add Product</a>
+        </div>
+    </nav>
+</header>
+
+<div class="max-w-2xl mx-auto mt-8 bg-white p-6 rounded shadow-md">
+    <h2 class="text-2xl font-semibold text-center mb-4">Add New Product</h2>
+
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+        
+        <div class="mb-4">
+            <label for="{{ form.name.id_for_label }}" class="block text-gray-700">Product Name</label>
+            {{ form.name }}
+            <p class="text-red-500">{{ form.name.errors }}</p>
+        </div>
+
+        <div class="mb-4">
+            <label for="{{ form.description.id_for_label }}" class="block text-gray-700">Product Description</label>
+            {{ form.description }}
+            <p class="text-red-500">{{ form.description.errors }}</p>
+        </div>
+
+        <div class="mb-4">
+            <label for="{{ form.price.id_for_label }}" class="block text-gray-700">Price</label>
+            {{ form.price }}
+            <p class="text-red-500">{{ form.price.errors }}</p>
+        </div>
+
+        <div class="mb-4">
+            <label for="{{ form.image.id_for_label }}" class="block text-gray-700">Product Image</label>
+            {{ form.image }}
+            <p class="text-red-500">{{ form.image.errors }}</p>
+        </div>
+
+        <div class="mb-4">
+            <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded">Add Product</button>
+        </div>
+    </form>
+</div>
+
+</body>
+</html>

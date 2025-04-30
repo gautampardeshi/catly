@@ -14,4 +14,18 @@ class ContactForm(forms.Form):
     email = forms.EmailField(label="Your Email")
     phone_number = forms.CharField(max_length=15)
     message = forms.CharField(widget=forms.Textarea, label="Your Message")
+
+class CheckoutForm(forms.Form):
+    name = forms.CharField(max_length=100)
+    address = forms.CharField(widget=forms.Textarea)
+    phone_number = forms.CharField(max_length=15)
+
+from django import forms
+from .models import Product
+
+class ProductForm(forms.ModelForm):
+    class Meta:
+        model = Product
+        fields = ['name', 'description', 'price', 'image']
+
     

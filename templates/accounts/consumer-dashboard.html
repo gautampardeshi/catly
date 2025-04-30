@@ -1,0 +1,71 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Consumer Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans">
+
+<div class="flex h-screen">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-white shadow-md flex flex-col justify-between p-6">
+        <div>
+            <h1 class="text-2xl font-bold text-indigo-600 mb-10">Hello, {{ user.username }}</h1>
+            <nav class="space-y-4">
+                <a href="#add-product" class="block px-4 py-2 bg-indigo-500 text-white rounded hover:bg-indigo-600">➕ Add Product</a>
+                <a href="#my-products" class="block px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300">📦 See My Products</a>
+            </nav>
+        </div>
+        <form method="post" action="{% url 'user:logout' %}">
+            {% csrf_token %}
+            <button type="submit" class="mt-10 w-full text-left text-red-500 font-semibold hover:underline">
+                🚪 Logout
+            </button>
+        </form>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 p-10 overflow-y-auto">
+        
+        <!-- Add Product Form -->
+        <section id="add-product" class="mb-12">
+            <h2 class="text-2xl font-semibold mb-4">Add Product</h2>
+            <form method="post" enctype="multipart/form-data" class="bg-white p-6 rounded shadow-md">
+                {% csrf_token %}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <input type="text" name="name" placeholder="Product Name" class="p-3 border rounded" required>
+                    <input type="number" step="0.01" name="price" placeholder="Price" class="p-3 border rounded" required>
+                    <textarea name="description" placeholder="Description" class="md:col-span-2 p-3 border rounded" required></textarea>
+                    <input type="file" name="image" class="md:col-span-2 p-3 border rounded" required>
+                </div>
+                <button type="submit" class="mt-4 px-6 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">
+                    Save Product
+                </button>
+            </form>
+        </section>
+
+        <!-- My Products -->
+        <section id="my-products">
+            <h2 class="text-2xl font-semibold mb-4">My Products</h2>
+            {% if products %}
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {% for product in products %}
+                <div class="bg-white rounded shadow p-4">
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}" class="h-40 w-full object-cover rounded mb-3">
+                    <h3 class="font-semibold text-lg">{{ product.name }}</h3>
+                    <p class="text-sm text-gray-600 mb-2">{{ product.description }}</p>
+                    <p class="text-indigo-600 font-bold">₹{{ product.price }}</p>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="text-gray-500">You haven't added any products yet.</p>
+            {% endif %}
+        </section>
+    </main>
+</div>
+
+</body>
+</html>
