@@ -16,7 +16,7 @@ from django.core.mail import send_mail
 from django.conf import settings
 from .models import Product
 from django.views.generic import ListView
-
+from .models import Product, Cart, CartItem
 # third-party
 import google.generativeai as genai
 from weasyprint import HTML
@@ -89,8 +89,6 @@ from django.contrib import messages
 
 class ConsumerDashboardView(LoginRequiredMixin, View):
     login_url = '/login/'  # 👈 This line ensures unauthenticated users are redirected
-    def get_success_url(self):
-        return self.get_redirect_url() or self.request.GET.get('next') or reverse('user:dashboard')
 
     def get(self, request):
         # Get all products added by the user
@@ -182,13 +180,19 @@ class ProductListView(ListView):
     template_name = 'accounts/product_list.html'
     context_object_name = 'object_list'
 
-@method_decorator(login_required, name='post')
 class AddToCartView(View):
     def post(self, request, product_id):
         product = get_object_or_404(Product, id=product_id)
-        cart, _ = Cart.objects.get_or_create(user=request.user)
-        cart_item, created = CartItem.objects.get_or_create(cart=cart, product=product)
 
+        # Get or create cart using session key
+        session_key = request.session.session_key
+        if not session_key:
+            request.session.create()
+            session_key = request.session.session_key
+
+        cart, _ = Cart.objects.get_or_create(session_key=session_key, user=None)
+
+        cart_item, created = CartItem.objects.get_or_create(cart=cart, product=product)
         if not created:
             cart_item.quantity += 1
         cart_item.save()
@@ -197,14 +201,12 @@ class AddToCartView(View):
 
 
 class RemoveFromCartView(View):
-    @method_decorator(login_required)
     def post(self, request, cart_item_id):
         CartItem.objects.filter(id=cart_item_id).delete()
         return redirect('user:cart_detail')
 
 
 class UpdateCartView(View):
-    @method_decorator(login_required)
     def post(self, request, cart_item_id):
         cart_item = get_object_or_404(CartItem, id=cart_item_id)
         new_quantity = int(request.POST.get('quantity', 1))
@@ -218,12 +220,17 @@ class UpdateCartView(View):
         return redirect('user:cart_detail')
 
 
-class CartDetail(LoginRequiredMixin,TemplateView):
+class CartDetail(TemplateView):
     template_name = 'cart_detail.html'
-    login_url = '/login/'
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        cart, _ = Cart.objects.get_or_create(user=self.request.user)
+        session_key = self.request.session.session_key
+        if not session_key:
+            self.request.session.create()
+            session_key = self.request.session.session_key
+
+        cart, _ = Cart.objects.get_or_create(session_key=session_key, user=None)
         cart_items = CartItem.objects.filter(cart=cart)
 
         total_price = 0
@@ -233,7 +240,7 @@ class CartDetail(LoginRequiredMixin,TemplateView):
 
         context['cart_items'] = cart_items
         context['total_price'] = total_price
-        return context
+        return context 
 
 class CheckoutView(View):
     def get(self, request):
