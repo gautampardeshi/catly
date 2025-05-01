@@ -89,6 +89,8 @@ from django.contrib import messages
 
 class ConsumerDashboardView(LoginRequiredMixin, View):
     login_url = '/login/'  # 👈 This line ensures unauthenticated users are redirected
+    def get_success_url(self):
+        return self.get_redirect_url() or self.request.GET.get('next') or reverse('user:dashboard')
 
     def get(self, request):
         # Get all products added by the user
