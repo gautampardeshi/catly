@@ -179,9 +179,9 @@ class ProductListView(ListView):
     model = Product
     template_name = 'accounts/product_list.html'
     context_object_name = 'object_list'
-    
+
+@method_decorator(login_required, name='post')
 class AddToCartView(View):
-    # @method_decorator(login_required)
     def post(self, request, product_id):
         product = get_object_or_404(Product, id=product_id)
         cart, _ = Cart.objects.get_or_create(user=request.user)
@@ -216,9 +216,9 @@ class UpdateCartView(View):
         return redirect('user:cart_detail')
 
 
-class CartDetail(TemplateView):
+class CartDetail(LoginRequiredMixin,TemplateView):
     template_name = 'cart_detail.html'
-
+    login_url = '/login/'
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         cart, _ = Cart.objects.get_or_create(user=self.request.user)
