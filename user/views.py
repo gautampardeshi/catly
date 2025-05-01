@@ -181,7 +181,7 @@ class ProductListView(ListView):
     context_object_name = 'object_list'
     
 class AddToCartView(View):
-    @method_decorator(login_required)
+    # @method_decorator(login_required)
     def post(self, request, product_id):
         product = get_object_or_404(Product, id=product_id)
         cart, _ = Cart.objects.get_or_create(user=request.user)
