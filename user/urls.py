@@ -23,8 +23,9 @@ urlpatterns = [
 
     path('checkout/', CheckoutView.as_view(), name='checkout'),
     path('payment/', PaymentView.as_view(), name='payment'),  # Add this line
-    path('payment-success/', PaymentSuccessView.as_view(), name='payment_success'),
-    path('invoice/<int:order_id>/', GenerateInvoiceView.as_view(), name='generate_invoice'),
+    path('payment-success/<int:order_id>/', PaymentSuccessView.as_view(), name='payment_success'),
+    path('invoice/<int:order_id>/', GenerateInvoiceView.as_view(), name='invoice_pdf'),
+    path('test-invoice/<int:order_id>/', test_invoice, name='test-invoice'),
     path('my-orders/', MyOrdersView.as_view(), name='my_orders'),
 
     path('contact/', ContactView.as_view(), name='contact'),

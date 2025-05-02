@@ -16,8 +16,11 @@ class ContactForm(forms.Form):
     message = forms.CharField(widget=forms.Textarea, label="Your Message")
 
 class CheckoutForm(forms.Form):
-    name = forms.CharField(max_length=100)
-    address = forms.CharField(widget=forms.Textarea)
+    full_name = forms.CharField(max_length=100, label="Full Name")
+    address = forms.CharField(widget=forms.Textarea(attrs={'rows': 2}), label="Address")
+    city = forms.CharField(max_length=50)
+    state = forms.CharField(max_length=50)
+    zip_code = forms.CharField(max_length=10, label="ZIP Code")
     phone_number = forms.CharField(max_length=15)
 
 from django import forms

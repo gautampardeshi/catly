@@ -242,43 +242,144 @@ class CartDetail(TemplateView):
         context['total_price'] = total_price
         return context 
 
+from django.shortcuts import render, redirect, get_object_or_404
+from django.views import View
+from .models import Product, Order, OrderItem
+from django.http import HttpResponse
+from django.template.loader import render_to_string
+from weasyprint import HTML
+import tempfile
+
+from django.views import View
+from django.shortcuts import render, redirect
+from .forms import CheckoutForm
+from .models import Product, Order, OrderItem
+
 class CheckoutView(View):
     def get(self, request):
+        cart = request.session.get('cart', {})
+        cart_items = []
+        total_price = 0
+
+        for product_id, quantity in cart.items():
+            product = Product.objects.get(id=product_id)
+            subtotal = product.price * quantity
+            total_price += subtotal
+            cart_items.append({'product': product, 'quantity': quantity, 'subtotal': subtotal})
+
         form = CheckoutForm()
-        return render(request, 'accounts/checkout.html', {'form': form})
+
+        return render(request, 'accounts/checkout.html', {
+            'cart_items': cart_items,
+            'total_price': total_price,
+            'form': form,
+        })
 
     def post(self, request):
         form = CheckoutForm(request.POST)
+
         if form.is_valid():
-            # You can store this in session or save as address object
-            request.session['checkout_data'] = form.cleaned_data
+            full_name = form.cleaned_data['full_name']
+            address = form.cleaned_data['address']
+            city = form.cleaned_data['city']
+            state = form.cleaned_data['state']
+            zip_code = form.cleaned_data['zip_code']
+            phone_number = form.cleaned_data['phone_number']
+
+            # ✅ User assign karo - ye line fix karti hai problem
+            order = Order.objects.create(
+                # user=request.user,  # ✅ Ye pehle None tha, ab fix hai
+                full_name=full_name,
+                address=address,
+                city=city,
+                state=state,
+                zip_code=zip_code,
+                phone_number=phone_number,
+                payment_status='Pending'
+            )
+
+            cart = request.session.get('cart', {})
+            for product_id, quantity in cart.items():
+                product = Product.objects.get(id=product_id)
+                OrderItem.objects.create(order=order, product=product, quantity=quantity)
+
+            request.session['order_id'] = order.id
             return redirect('user:payment')
-        return render(request, 'accounts/checkout.html', {'form': form})
+
+        else:
+            cart = request.session.get('cart', {})
+            cart_items = []
+            total_price = 0
+            for product_id, quantity in cart.items():
+                product = Product.objects.get(id=product_id)
+                subtotal = product.price * quantity
+                total_price += subtotal
+                cart_items.append({'product': product, 'quantity': quantity, 'subtotal': subtotal})
+
+            return render(request, 'accounts/checkout.html', {
+                'form': form,
+                'cart_items': cart_items,
+                'total_price': total_price
+            })
+
+
+from django.shortcuts import redirect
+from django.urls import reverse
 
 class PaymentView(View):
     def get(self, request):
-        # Render the payment page
-        return render(request, 'accounts/payment.html')
+        order_id = request.session.get('order_id')
+        order = get_object_or_404(Order, id=order_id)
+        return render(request, 'accounts/payment.html', {'order': order})
+
+    def post(self, request):
+        order_id = request.session.get('order_id')
+        order = get_object_or_404(Order, id=order_id)
+        # Simulating payment success
+        if order:
+            order.payment_status = 'Paid'
+            order.save()
+            return redirect('user:payment_success', order.id)
     
+from django.views.generic import TemplateView
+from user.models import Order  # adjust import based on your app
+
 class PaymentSuccessView(View):
-    def get(self, request):
-        order_id = request.GET.get('order_id')
-        return render(request, 'accounts/payment_success.html', {'order_id': order_id})
+    def get(self, request, order_id):
+        order = get_object_or_404(Order, id=order_id)
+        return render(request, 'accounts/payment_success.html', {'order': order})
+
+from django.views import View
+from django.http import HttpResponse
+from django.template.loader import render_to_string
+from weasyprint import HTML
+from .models import Order
+from django.http import HttpResponse
+from django.template.loader import get_template
+import weasyprint
+from .models import Order  # adjust path to your model
 
 class GenerateInvoiceView(View):
     def get(self, request, order_id):
         order = get_object_or_404(Order, id=order_id)
-        html_content = render_to_string('accounts/invoice.html', {'order': order})
-        pdf = HTML(string=html_content).write_pdf()
-
-        response = HttpResponse(pdf, content_type='application/pdf')
-        response['Content-Disposition'] = f'attachment; filename="invoice_{order.id}.pdf"'
+        html_string = render_to_string('accounts/invoice.html', {'order': order})
+        html = HTML(string=html_string)
+        result = html.write_pdf()
+        response = HttpResponse(content_type='application/pdf')
+        response['Content-Disposition'] = f'inline; filename=invoice_{order_id}.pdf'
+        response.write(result)
         return response
 
 
-class MyOrdersView(View):
-    def get(self, request):
-        orders = Order.objects.filter(user=request.user)
-        return render(request, 'accounts/my_orders.html', {'orders': orders})
+class MyOrdersView(LoginRequiredMixin, ListView):
+    model = Order
+    template_name = "user/my_orders.html"  # Adjust if different
+    context_object_name = "orders"
 
+    def get_queryset(self):
+        return Order.objects.filter(user=self.request.user).order_by("-created_at")
+
+def test_invoice(request, order_id):
+    order = get_object_or_404(Order, id=order_id)
+    return render(request, 'accounts/invoice.html', {'order': order})
 

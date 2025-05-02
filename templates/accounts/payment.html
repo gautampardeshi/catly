@@ -9,7 +9,9 @@
     <div class="bg-white p-6 rounded-lg shadow-lg">
         <h1 class="text-2xl font-bold mb-4">Payment Page</h1>
         <p>Complete your payment here.</p>
-        <a href="{% url 'user:payment_success' %}" class="bg-blue-600 text-white px-4 py-2 rounded mt-4 inline-block">Simulate Payment Success</a>
+        <a href="{% if order %}{% url 'user:payment_success' order.id %}{% else %}#{% endif %}" class="bg-blue-600 text-white px-4 py-2 rounded mt-4 inline-block">
+            Simulate Payment Success
+        </a>
     </div>
 </body>
 </html>

@@ -58,7 +58,7 @@ MIDDLEWARE = [
 
 ]
 LOGIN_URL = '/login/'  # jab user authenticated nahi hota
-LOGIN_REDIRECT_URL = '/dashboard/'
+LOGIN_REDIRECT_URL = '/login/'
 
 
 ROOT_URLCONF = 'catly.urls'
