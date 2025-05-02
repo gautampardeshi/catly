@@ -12,59 +12,70 @@
 <body class="bg-gray-50 text-gray-900">
 
     <!-- ✅ Responsive Navbar -->
-    <nav class="bg-white shadow-lg fixed w-full top-0 z-50">
-        <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+    <nav class="bg-white shadow-md fixed w-full z-50 top-0">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="flex justify-between items-center h-20">
             <!-- Logo -->
-            <a href="#" class="flex items-center">
-                <img src="{% static 'images/catly-high-resolution-logo.png' %}" alt="Catly Logo" class="h-16 w-auto object-contain">
-            </a>
-        
-            <!-- Hamburger for Mobile -->
-            <div class="md:hidden">
-                <button id="menu-toggle" class="text-3xl focus:outline-none">&#9776;</button>
+            <div class="flex-shrink-0 flex items-center">
+              <a href="#">
+                <img class="h-20 w-auto object-contain" src="{% static 'images/catly-high-resolution-logo.png' %}" alt="Catly Logo">
+              </a>
             </div>
-        
-            <!-- Links Desktop -->
-            <div class="hidden md:flex space-x-8 items-center">
-                <a href={% url 'user:about' %} class="hover:underline underline-offset-4 font-medium">about</a>
-                <a href="{% url 'user:product_list'%}" class="hover:underline underline-offset-4 font-medium">Products</a>
-                <div class="relative group">
-                    <button class="font-medium hover:underline underline-offset-4">Categories ▾</button>
-                    <div class="absolute hidden bg-white shadow-lg group-hover:block mt-2 rounded-md py-2 w-48">
-                        <a href="#" class="block px-4 py-2 hover:bg-blue-100">Electronics</a>
-                        <a href="#" class="block px-4 py-2 hover:bg-blue-100">Fashion</a>
-                        <a href="#" class="block px-4 py-2 hover:bg-blue-100">Home & Living</a>
-                    </div>
+      
+            <!-- Desktop Menu -->
+            <div class="hidden md:flex md:space-x-8 items-center font-medium text-gray-700">
+              <a href="{% url 'user:about' %}" class="hover:text-blue-600 transition">About</a>
+              <a href="{% url 'user:product_list' %}" class="hover:text-blue-600 transition">Products</a>
+      
+              <!-- Categories Dropdown -->
+              <div class="relative group">
+                <button class="flex items-center hover:text-blue-600 transition">
+                  Categories ▾
+                </button>
+                <div class="absolute hidden group-hover:block bg-white shadow-lg mt-2 rounded-md py-2 w-48 z-50 transition-all duration-200">
+                  <a href="#" class="block px-4 py-2 hover:bg-gray-100">Cat Food</a>
+                  <a href="#" class="block px-4 py-2 hover:bg-gray-100">Toys</a>
+                  <a href="#" class="block px-4 py-2 hover:bg-gray-100">Accessories</a>
                 </div>
-                <a href={% url 'user:contact' %} class="hover:underline underline-offset-4 font-medium">Contact</a>
-        
-                <!-- Auth + Cart -->
-                <a href="{% url 'user:cart_detail' %}" class="relative text-xl">
-                    🛒
-                    {% if cart_item_count and cart_item_count > 0 %}
-                    <span class="absolute -top-2 -right-3 bg-red-500 text-white text-xs px-1.5 py-0.5 rounded-full">
-                        {{ cart_item_count }}
-                    </span>
-                    {% endif %}
-                </a>
-                <a href="{% url 'user:ai_chat' %}" class="text-sm px-4 py-2 bg-gray-100 rounded-full hover:bg-gray-200">Chat</a>
-                <a href="{% url 'user:login' %}" class="text-blue-600 border border-blue-600 px-4 py-2 rounded-full hover:bg-blue-600 hover:text-white">Login</a>
-                <a href="{% url 'user:signup' %}" class="bg-blue-600 text-white px-4 py-2 rounded-full hover:bg-blue-700">Signup</a>
+              </div>
+      
+              <a href="{% url 'user:contact' %}" class="hover:text-blue-600 transition">Contact</a>
+      
+              <!-- Cart Icon -->
+              <a href="{% url 'user:cart_detail' %}" class="relative text-2xl hover:text-blue-600 transition">
+                🛒
+                {% if cart_item_count and cart_item_count > 0 %}
+                <span class="absolute -top-2 -right-3 bg-red-500 text-white text-xs px-1.5 py-0.5 rounded-full">
+                  {{ cart_item_count }}
+                </span>
+                {% endif %}
+              </a>
+      
+              <!-- Chat & Auth Buttons -->
+              <a href="{% url 'user:ai_chat' %}" class="text-sm px-4 py-2 rounded-full bg-gray-100 hover:bg-gray-200 transition">Chat</a>
+              <a href="{% url 'user:login' %}" class="text-sm px-4 py-2 border border-blue-600 text-blue-600 rounded-full hover:bg-blue-600 hover:text-white transition">Login</a>
+              <a href="{% url 'user:signup' %}" class="text-sm px-4 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition">Signup</a>
             </div>
+      
+            <!-- Hamburger -->
+            <div class="md:hidden flex items-center">
+              <button id="menu-toggle" class="text-3xl text-gray-800 focus:outline-none">&#9776;</button>
+            </div>
+          </div>
         </div>
-    
-        <!-- 🔽 Mobile Menu -->
-        <div id="mobile-menu" class="md:hidden hidden px-6 pb-4">
-            <a href="#" class="block py-2 font-medium">about</a>
-            <a href="#" class="block py-2 font-medium">Products</a>
-            <a href="#" class="block py-2 font-medium">Categories</a>
-            <a href="#" class="block py-2 font-medium">Contact</a>
-            <a href="{% url 'user:cart_detail' %}" class="block py-2 font-medium">🛒 Cart</a>
-            <a href="{% url 'user:ai_chat' %}" class="block py-2 font-medium">Chat</a>
-            <a href="{% url 'user:login' %}" class="block py-2 text-blue-600">Login</a>
-            <a href="{% url 'user:signup' %}" class="block py-2 text-white bg-blue-600 rounded">Signup</a>
+      
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="md:hidden hidden px-6 pb-4 pt-2 bg-white shadow-lg">
+          <a href="{% url 'user:about' %}" class="block py-2 text-gray-700 font-medium">About</a>
+          <a href="{% url 'user:product_list' %}" class="block py-2 text-gray-700 font-medium">Products</a>
+          <a href="#" class="block py-2 text-gray-700 font-medium">Categories</a>
+          <a href="{% url 'user:contact' %}" class="block py-2 text-gray-700 font-medium">Contact</a>
+          <a href="{% url 'user:cart_detail' %}" class="block py-2 text-gray-700 font-medium">🛒 Cart</a>
+          <a href="{% url 'user:ai_chat' %}" class="block py-2 text-gray-700 font-medium">Chat</a>
+          <a href="{% url 'user:login' %}" class="block py-2 text-blue-600">Login</a>
+          <a href="{% url 'user:signup' %}" class="block py-2 text-white bg-blue-600 rounded text-center">Signup</a>
         </div>
-    </nav>
+      </nav>
 
     <!-- Hero Section -->
     <header class="relative bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600 text-white pt-32 pb-40 px-6 text-center overflow-hidden">
@@ -79,69 +90,78 @@
     </header>
 
     <!-- Chat Popup -->
-    <div id="chat-popup" class="fixed bottom-4 right-4 w-80 bg-white p-4 rounded-lg shadow-lg z-50 hidden">
-        <div class="flex justify-between items-center">
-            <h3 class="font-semibold">Chat with Us</h3>
-            <button id="close-chat" class="text-xl font-bold">&times;</button>
-        </div>
-        <div class="mt-4 h-56 overflow-auto p-2 border-b">
-            <!-- Messages will go here -->
-            <div class="message">Hi! How can I help you?</div>
-        </div>
-        <div class="mt-2">
-            <input id="chat-input" type="text" placeholder="Type a message..." class="w-full p-2 border rounded-md">
-            <button id="send-message" class="w-full bg-blue-600 text-white p-2 mt-2 rounded-md">Send</button>
-        </div>
-    </div>
+<div id="chat-popup" class="fixed bottom-4 right-4 w-80 bg-white p-4 rounded-lg shadow-lg z-50 hidden">
+  <div class="flex justify-between items-center border-b pb-2">
+      <h3 class="font-semibold">Chat with Us</h3>
+      <button id="close-chat" class="text-xl font-bold">&times;</button>
+  </div>
+  <div id="chat-messages" class="mt-4 h-56 overflow-y-auto p-2 border-b">
+      <div class="bg-gray-100 p-2 rounded-md text-sm text-left mb-2">Hi! How can I help you?</div>
+  </div>
+  <div class="mt-2">
+      <input id="chat-input" type="text" placeholder="Type a message..." class="w-full p-2 border rounded-md">
+      <button id="send-message" class="w-full bg-blue-600 text-white p-2 mt-2 rounded-md hover:bg-blue-700">Send</button>
+  </div>
+</div>
 
-    <!-- Chat Button -->
-    <div class="fixed bottom-4 right-4 z-50">
-        <button id="open-chat" class="bg-blue-600 text-white p-4 rounded-full shadow-lg text-xl">
-            💬
-        </button>
-    </div>
+<!-- Floating Chat Button -->
+<div class="fixed bottom-4 right-4 z-40">
+  <button id="open-chat" class="bg-blue-600 text-white p-4 rounded-full shadow-lg text-xl hover:bg-blue-700">
+      💬
+  </button>
+</div>
 
     <!-- Features -->
-    <section class="max-w-7xl mx-auto px-6 py-16 grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
-        <div class="bg-white p-6 rounded-2xl shadow hover:shadow-md">
-            <h3 class="text-xl font-semibold">🚚 Super Fast Delivery</h3>
-            <p class="text-gray-600 mt-2">Lightning-fast delivery within 24 hours</p>
+    <section class="relative w-full overflow-hidden h-[400px] md:h-[550px]">
+        <!-- Slides -->
+        <div id="carousel" class="flex transition-transform duration-700 ease-in-out">
+          <img src="{% static 'images/slide1.jpg' %}" class="w-full object-cover flex-shrink-0" alt="Slide 1" />
+          <img src="{% static 'images/slide2.jpg' %}" class="w-full object-cover flex-shrink-0" alt="Slide 2" />
+          <img src="{% static 'images/slide3.jpg' %}" class="w-full object-cover flex-shrink-0" alt="Slide 3" />
         </div>
-        <div class="bg-white p-6 rounded-2xl shadow hover:shadow-md">
-            <h3 class="text-xl font-semibold">🔒 Trusted Payment</h3>
-            <p class="text-gray-600 mt-2">Fully secure and encrypted transactions</p>
-        </div>
-        <div class="bg-white p-6 rounded-2xl shadow hover:shadow-md">
-            <h3 class="text-xl font-semibold">📦 Hassle-Free Returns</h3>
-            <p class="text-gray-600 mt-2">Return easily within 7 days, no questions asked</p>
+      
+        <!-- Navigation Dots -->
+        <div class="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2">
+          <span class="dot w-3 h-3 rounded-full bg-white opacity-50 cursor-pointer" onclick="goToSlide(0)"></span>
+          <span class="dot w-3 h-3 rounded-full bg-white opacity-50 cursor-pointer" onclick="goToSlide(1)"></span>
+          <span class="dot w-3 h-3 rounded-full bg-white opacity-50 cursor-pointer" onclick="goToSlide(2)"></span>
         </div>
     </section>
 
     <!-- Product Grid -->
-    <section class="max-w-7xl mx-auto px-6 py-12">
-        <h2 class="text-3xl font-bold text-center mb-10">Our Bestsellers</h2>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            <!-- Product Card -->
-            <div class="bg-white rounded-3xl shadow-xl p-6 transform hover:-translate-y-1 hover:scale-105 transition duration-300 border">
-                <img src="{% static 'images/product1.jpg' %}" class="w-full h-52 object-cover rounded-xl">
-                <h3 class="text-xl font-bold mt-4">Smartphone X</h3>
-                <p class="text-gray-600 mt-2">$499.99</p>
-                <button class="mt-4 w-full bg-indigo-600 text-white py-2 rounded-full hover:bg-indigo-700">Add to Cart</button>
+    <section class="max-w-7xl mx-auto px-6 py-16 bg-gray-50">
+        <h2 class="text-4xl font-bold text-center text-gray-800 mb-12">Why Shop With Us?</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+          
+          <!-- Feature 1 -->
+          <div class="bg-white p-8 rounded-3xl shadow-xl hover:shadow-2xl transition duration-300 border text-center">
+            <div class="flex items-center justify-center w-16 h-16 mx-auto bg-indigo-100 rounded-full mb-4">
+              <img src="{% static 'icons/quality.png' %}" alt="Quality" class="w-8 h-8">
             </div>
-            <div class="bg-white rounded-3xl shadow-xl p-6 transform hover:-translate-y-1 hover:scale-105 transition duration-300 border">
-                <img src="{% static 'images/product2.jpg' %}" class="w-full h-52 object-cover rounded-xl">
-                <h3 class="text-xl font-bold mt-4">Wireless Headphones</h3>
-                <p class="text-gray-600 mt-2">$199.99</p>
-                <button class="mt-4 w-full bg-indigo-600 text-white py-2 rounded-full hover:bg-indigo-700">Add to Cart</button>
+            <h3 class="text-xl font-semibold text-gray-800 mb-2">Premium Quality</h3>
+            <p class="text-gray-600">We offer only the best products, rigorously tested for performance and durability.</p>
+          </div>
+      
+          <!-- Feature 2 -->
+          <div class="bg-white p-8 rounded-3xl shadow-xl hover:shadow-2xl transition duration-300 border text-center">
+            <div class="flex items-center justify-center w-16 h-16 mx-auto bg-indigo-100 rounded-full mb-4">
+              <img src="{% static 'icons/truck.png' %}" alt="Shipping" class="w-8 h-8">
             </div>
-            <div class="bg-white rounded-3xl shadow-xl p-6 transform hover:-translate-y-1 hover:scale-105 transition duration-300 border">
-                <img src="{% static 'images/product3.jpg' %}" class="w-full h-52 object-cover rounded-xl">
-                <h3 class="text-xl font-bold mt-4">Smart Watch Pro</h3>
-                <p class="text-gray-600 mt-2">$299.99</p>
-                <button class="mt-4 w-full bg-indigo-600 text-white py-2 rounded-full hover:bg-indigo-700">Add to Cart</button>
+            <h3 class="text-xl font-semibold text-gray-800 mb-2">Fast & Free Shipping</h3>
+            <p class="text-gray-600">Quick nationwide delivery with real-time tracking and no hidden charges.</p>
+          </div>
+      
+          <!-- Feature 3 -->
+          <div class="bg-white p-8 rounded-3xl shadow-xl hover:shadow-2xl transition duration-300 border text-center">
+            <div class="flex items-center justify-center w-16 h-16 mx-auto bg-indigo-100 rounded-full mb-4">
+              <img src="{% static 'icons/support.png' %}" alt="Support" class="w-8 h-8">
             </div>
+            <h3 class="text-xl font-semibold text-gray-800 mb-2">24/7 Support</h3>
+            <p class="text-gray-600">Our expert support team is available round the clock to help you anytime.</p>
+          </div>
+      
         </div>
-    </section>
+      </section>
 
     <!-- Footer -->
     <footer class="bg-gray-900 text-gray-300 pt-12 pb-6">
@@ -181,7 +201,7 @@
         </div>
     
         <div class="mt-10 border-t border-gray-700 text-center text-sm pt-4">
-            &copy; 2025 Catly. Built with 💙 and 🐈 by Gautam Pardeshi.
+            &copy; 2025 Catly.
         </div>
     </footer>
     
@@ -189,23 +209,50 @@
     <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 
     <script>
-        const toggleBtn = document.getElementById("menu-toggle");
-        const mobileMenu = document.getElementById("mobile-menu");
-        const openChatBtn = document.getElementById("open-chat");
-        const closeChatBtn = document.getElementById("close-chat");
-        const chatPopup = document.getElementById("chat-popup");
+      // Toggle mobile menu
+      const menuToggle = document.getElementById('menu-toggle');
+      const mobileMenu = document.getElementById('mobile-menu');
+      menuToggle.addEventListener('click', () => {
+          mobileMenu.classList.toggle('hidden');
+      });
+
+      // Image carousel functionality
+      const carousel = document.querySelector('.carousel-container');
+      const dots = document.querySelectorAll('.carousel-dot');
+      let currentSlide = 0;
+
+      function updateCarousel() {
+          carousel.style.transform = `translateX(-${currentSlide * 100}%)`;
+          dots.forEach((dot, i) => {
+              dot.classList.toggle('active', i === currentSlide);
+          });
+      }
+
+      dots.forEach((dot, i) => {
+          dot.addEventListener('click', () => {
+              currentSlide = i;
+              updateCarousel();
+          });
+      });
+
+      setInterval(() => {
+          currentSlide = (currentSlide + 1) % dots.length;
+          updateCarousel();
+      }, 3000);
+
+      // Chat popup toggle
+      const openChatBtn = document.getElementById('open-chat');
+      const closeChatBtn = document.getElementById('close-chat');
+      const chatPopup = document.getElementById('chat-popup');
+
+      openChatBtn.addEventListener('click', () => {
+          chatPopup.classList.remove('hidden');
+      });
+
+      closeChatBtn.addEventListener('click', () => {
+          chatPopup.classList.add('hidden');
+      });
+  </script>
       
-        toggleBtn.addEventListener("click", () => {
-          mobileMenu.classList.toggle("hidden");
-        });
-
-        openChatBtn.addEventListener("click", () => {
-            chatPopup.classList.remove("hidden");
-        });
-
-        closeChatBtn.addEventListener("click", () => {
-            chatPopup.classList.add("hidden");
-        });
-    </script>
 </body>
 </html>

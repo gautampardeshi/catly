@@ -123,7 +123,7 @@ class AIChatView(View):
     def post(self, request):
         user_input = request.POST.get('message')
         try:
-            genai.configure(api_key="YOUR_API_KEY")
+            genai.configure(api_key="AIzaSyDkZs1aB4c2fWorZNKK81uXyREk8GRfSqo")
             model = genai.GenerativeModel('gemini-1.5-flash')
             response = model.generate_content(user_input)
             reply = response.text
