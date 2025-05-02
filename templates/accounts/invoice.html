@@ -34,8 +34,8 @@
                     <tr>
                         <td>{{ item.product.name }}</td>
                         <td>{{ item.quantity }}</td>
-                        <td>₹{{ item.product.price }}</td>
-                        <td>₹{{ item.product.price|floatformat:2 }}</td>  <!-- Make sure subtotal is calculated correctly -->
+                        <td>₹{{ item.price }}</td>
+                        <td>₹{{ item.subtotal|floatformat:2 }}</td>  <!-- Make sure subtotal is calculated correctly -->
                     </tr>
                 {% endfor %}
             {% else %}
