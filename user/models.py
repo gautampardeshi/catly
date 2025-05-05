@@ -44,7 +44,8 @@ class CartItem(models.Model):
 # models.py
 class Order(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
-    full_name = models.CharField(max_length=35)
+    first_name = models.CharField(max_length=35)
+    last_name = models.CharField(max_length=35)
     address = models.TextField()
     city = models.CharField(max_length=45, null=True, blank=True)
     state = models.CharField(max_length=45)
@@ -52,6 +53,7 @@ class Order(models.Model):
     phone_number = models.CharField(max_length=15) 
     payment_status = models.CharField(max_length=45, default='Pending')
     created_at = models.DateTimeField(auto_now_add=True)
+    
 
     def __str__(self):
         return f"Order #{self.id} - {self.full_name}"
