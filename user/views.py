@@ -310,7 +310,8 @@ class CheckoutView(View):
         form = CheckoutForm(request.POST)
 
         if form.is_valid():
-            full_name = form.cleaned_data['full_name']
+            first_name = form.cleaned_data['first_name']
+            last_name = form.cleaned_data['last_name']
             address = form.cleaned_data['address']
             city = form.cleaned_data['city']
             state = form.cleaned_data['state']
@@ -320,7 +321,8 @@ class CheckoutView(View):
             # ✅ User assign karo - ye line fix karti hai problem
             order = product_Order.objects.create(
                 # user=request.user,  # ✅ Ye pehle None tha, ab fix hai
-                full_name=full_name,
+                full_name=first_name,
+                last_name=last_name,
                 address=address,
                 city=city,
                 state=state,
