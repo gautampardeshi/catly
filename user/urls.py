@@ -8,6 +8,11 @@ urlpatterns = [
     path('login/', LoginView.as_view(), name='login'),
     path('logout/', CustomLogoutView.as_view(), name='logout'),
 
+    path('users/', UserListView.as_view(), name='user_list'),
+    path('admin-dashboard/users/add/', UserCreateView.as_view(), name='user_add'),
+    path('admin-dashboard/users/<int:pk>/edit/', UserUpdateView.as_view(), name='user_edit'),
+    path('admin-dashboard/users/<int:pk>/delete/', UserDeleteView.as_view(), name='user_delete'),
+
     path('admin-dashboard/', AdminDashboardView.as_view(), name='admin_dashboard'),
     path('seller-dashboard/', SellerDashboardView.as_view(), name='seller_dashboard'),
     path('consumer-dashboard/', ConsumerDashboardView.as_view(), name='consumer_dashboard'),

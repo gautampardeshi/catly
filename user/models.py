@@ -42,7 +42,7 @@ class CartItem(models.Model):
         return f"{self.product.name} - {self.quantity}"
 
 # models.py
-class Order(models.Model):
+class product_Order(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
     first_name = models.CharField(max_length=35)
     last_name = models.CharField(max_length=35)
@@ -64,7 +64,7 @@ class Order(models.Model):
 
 
 class OrderItem(models.Model):
-    order = models.ForeignKey(Order, related_name='items', on_delete=models.CASCADE)
+    order = models.ForeignKey(product_Order, related_name='items', on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)
     price = models.DecimalField(default=0.00,max_digits=10, decimal_places=2)  # 👈 Add this line

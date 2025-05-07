@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Form</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-gray-100">
+    {% comment %} {% extends "accounts/admin_dashboard.html" %} {% endcomment %}
+    {% block content %}
+    <div class="p-6 max-w-3xl mx-auto bg-white rounded-lg shadow-lg">
+        <h2 class="text-2xl font-semibold text-gray-800 mb-6">{{ form.instance.pk|yesno:"Edit User,Add User" }}</h2>
+        <form method="post">
+            {% csrf_token %}
+            <div class="space-y-4">
+                {% for field in form %}
+                <div class="flex flex-col">
+                    <label for="{{ field.id_for_label }}" class="text-sm font-medium text-gray-600 mb-2">{{ field.label }}</label>
+                    <div class="relative">
+                        {{ field }}
+                    </div>
+                    {% if field.help_text %}
+                    <span class="text-xs text-gray-500">{{ field.help_text }}</span>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            <div class="mt-6 flex justify-between items-center">
+                <a href="{% url 'user:user_list' %}" class="text-blue-600 hover:underline">Back to Users List</a>
+                <button type="submit" class="bg-blue-600 text-white px-6 py-3 rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">Save</button>
+            </div>
+        </form>
+    </div>
+    {% endblock %}
+</body>
+
+</html>

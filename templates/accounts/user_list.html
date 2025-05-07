@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-gray-100">
+    {% comment %} {% extends "accounts/admin_dashboard.html" %} {% endcomment %}
+    
+    {% block content %}
+    <div class="p-6 max-w-7xl mx-auto">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-semibold text-gray-800">User Management</h2>
+            <a href="{% url 'user:user_add' %}"
+                class="bg-blue-500 text-white px-6 py-3 rounded-lg shadow-lg hover:bg-blue-600 transition duration-200 ease-in-out">
+                ➕ Add User
+            </a>
+        </div>
+
+        <div class="overflow-x-auto bg-white shadow-lg rounded-lg">
+            <table class="min-w-full table-auto text-left">
+                <thead class="bg-blue-100 text-gray-700">
+                    <tr>
+                        <th class="px-6 py-4 text-sm font-medium">Username</th>
+                        <th class="px-6 py-4 text-sm font-medium">Email</th>
+                        <th class="px-6 py-4 text-sm font-medium">Role</th>
+                        <th class="px-6 py-4 text-sm font-medium">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="text-gray-600">
+                    {% for user in users %}
+                    <tr class="border-b hover:bg-gray-50">
+                        <td class="px-6 py-4 text-sm font-medium">{{ user.username }}</td>
+                        <td class="px-6 py-4 text-sm">{{ user.email }}</td>
+                        <td class="px-6 py-4 text-sm">{{ user.role }}</td>
+                        <td class="px-6 py-4 space-x-4 text-sm">
+                            <a href="{% url 'user:user_edit' user.pk %}"
+                                class="text-blue-500 hover:text-blue-600 hover:underline">Edit</a>
+                            <a href="{% url 'user:user_delete' user.pk %}"
+                                class="text-red-500 hover:text-red-600 hover:underline">Delete</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="text-center py-4">No users found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endblock %}
+</body>
+
+</html>

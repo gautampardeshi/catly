@@ -23,7 +23,7 @@ from weasyprint import HTML
 
 # local imports
 from .forms import SignUpForm, ContactForm, CheckoutForm
-from .models import CustomUser, Product, Cart, CartItem, Order
+from .models import CustomUser, Product, Cart, CartItem, product_Order
 
 def home(request):
     return render(request, 'home.html')
@@ -72,6 +72,37 @@ class CustomLogoutView(LogoutView):
     def get(self, request, *args, **kwargs):
         # Treat GET requests as POST to allow logout via GET
         return self.post(request, *args, **kwargs)
+
+# users_details
+
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView
+from django.urls import reverse_lazy
+from .models import CustomUser
+from .forms import SignUpForm
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.shortcuts import redirect
+
+class UserListView(LoginRequiredMixin, ListView):
+    model = CustomUser
+    template_name = 'accounts/user_list.html'
+    context_object_name = 'users'
+
+class UserCreateView(LoginRequiredMixin, CreateView):
+    model = CustomUser
+    form_class = SignUpForm
+    template_name = 'accounts/user_form.html'
+    success_url = reverse_lazy('user_list')
+
+class UserUpdateView(LoginRequiredMixin, UpdateView):
+    model = CustomUser
+    form_class = SignUpForm
+    template_name = 'accounts/user_form.html'
+    success_url = reverse_lazy('user_list')
+
+class UserDeleteView(LoginRequiredMixin, DeleteView):
+    model = CustomUser
+    template_name = 'accounts/user_confirm_delete.html'
+    success_url = reverse_lazy('user_list')
 
 class AdminDashboardView(LoginRequiredMixin, View):
     def get(self, request):
@@ -244,7 +275,7 @@ class CartDetail(TemplateView):
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
-from .models import Product, Order, OrderItem
+from .models import Product, product_Order, OrderItem
 from django.http import HttpResponse
 from django.template.loader import render_to_string
 from weasyprint import HTML
@@ -253,7 +284,7 @@ import tempfile
 from django.views import View
 from django.shortcuts import render, redirect
 from .forms import CheckoutForm
-from .models import Product, Order, OrderItem
+from .models import Product, product_Order, OrderItem
 
 class CheckoutView(View):
     def get(self, request):
@@ -287,7 +318,7 @@ class CheckoutView(View):
             phone_number = form.cleaned_data['phone_number']
 
             # ✅ User assign karo - ye line fix karti hai problem
-            order = Order.objects.create(
+            order = product_Order.objects.create(
                 # user=request.user,  # ✅ Ye pehle None tha, ab fix hai
                 full_name=full_name,
                 address=address,
@@ -329,12 +360,12 @@ from django.urls import reverse
 class PaymentView(View):
     def get(self, request):
         order_id = request.session.get('order_id')
-        order = get_object_or_404(Order, id=order_id)
+        order = get_object_or_404(product_Order, id=order_id)
         return render(request, 'accounts/payment.html', {'order': order})
 
     def post(self, request):
         order_id = request.session.get('order_id')
-        order = get_object_or_404(Order, id=order_id)
+        order = get_object_or_404(product_Order, id=order_id)
         # Simulating payment success
         if order:
             order.payment_status = 'Paid'
@@ -342,26 +373,26 @@ class PaymentView(View):
             return redirect('user:payment_success', order.id)
     
 from django.views.generic import TemplateView
-from user.models import Order  # adjust import based on your app
+from user.models import product_Order  # adjust import based on your app
 
 class PaymentSuccessView(View):
     def get(self, request, order_id):
-        order = get_object_or_404(Order, id=order_id)
+        order = get_object_or_404(product_Order, id=order_id)
         return render(request, 'accounts/payment_success.html', {'order': order})
 
 from django.views import View
 from django.http import HttpResponse
 from django.template.loader import render_to_string
 from weasyprint import HTML
-from .models import Order
+from .models import product_Order
 from django.http import HttpResponse
 from django.template.loader import get_template
 import weasyprint
-from .models import Order  # adjust path to your model
+from .models import product_Order  # adjust path to your model
 
 class GenerateInvoiceView(View):
     def get(self, request, order_id):
-        order = get_object_or_404(Order, id=order_id)
+        order = get_object_or_404(product_Order, id=order_id)
         html_string = render_to_string('accounts/invoice.html', {'order': order})
         html = HTML(string=html_string)
         result = html.write_pdf()
@@ -372,14 +403,14 @@ class GenerateInvoiceView(View):
 
 
 class MyOrdersView(LoginRequiredMixin, ListView):
-    model = Order
+    model = product_Order
     template_name = "user/my_orders.html"  # Adjust if different
     context_object_name = "orders"
 
     def get_queryset(self):
-        return Order.objects.filter(user=self.request.user).order_by("-created_at")
+        return product_Order.objects.filter(user=self.request.user).order_by("-created_at")
 
 def test_invoice(request, order_id):
-    order = get_object_or_404(Order, id=order_id)
+    order = get_object_or_404(product_Order, id=order_id)
     return render(request, 'accounts/invoice.html', {'order': order})
 
