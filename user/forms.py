@@ -16,7 +16,8 @@ class ContactForm(forms.Form):
     message = forms.CharField(widget=forms.Textarea, label="Your Message")
 
 class CheckoutForm(forms.Form):
-    full_name = forms.CharField(max_length=100, label="Full Name")
+    first_name = forms.CharField(label='First Name', max_length=100)
+    last_name = forms.CharField(label='Last Name', max_length=100)
     address = forms.CharField(widget=forms.Textarea(attrs={'rows': 2}), label="Address")
     city = forms.CharField(max_length=50)
     state = forms.CharField(max_length=50)
