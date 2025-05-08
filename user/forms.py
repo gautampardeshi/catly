@@ -1,11 +1,21 @@
 from django import forms
 from .models import CustomUser
 from django.contrib.auth.forms import UserCreationForm
+from django.core.exceptions import ValidationError
+import re
 
 class SignUpForm(UserCreationForm):
     class Meta:
         model = CustomUser
-        fields = ('username', 'email', 'role', 'password1', 'password2')
+        fields = ('first_name','last_name','username','phone_number', 'email', 'role', 'password1', 'password2')
+        # phone_number = forms.CharField(max_length=15, required=False)
+
+    def clean_phone_number(self):
+        phone_number = self.cleaned_data.get('phone_number')
+        if phone_number:
+            if not phone_number.isdigit() or len(phone_number) < 10:
+                raise forms.ValidationError("Enter a valid phone number with at least 10 digits.")
+        return phone_number
 
 from django import forms
 
@@ -32,4 +42,3 @@ class ProductForm(forms.ModelForm):
         model = Product
         fields = ['name', 'description', 'price', 'image']
 
-    

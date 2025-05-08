@@ -27,14 +27,21 @@
                     <tr>
                         <th class="px-6 py-4 text-sm font-medium">Username</th>
                         <th class="px-6 py-4 text-sm font-medium">Email</th>
+                        <th class="px-6 py-4 text-sm font-medium">First name</th>
+                        <th class="px-6 py-4 text-sm font-medium">Last name</th>
                         <th class="px-6 py-4 text-sm font-medium">Role</th>
                         <th class="px-6 py-4 text-sm font-medium">Actions</th>
+                        <th class="px-6 py-4 text-sm font-medium">Edit/Delete</th>
                     </tr>
                 </thead>
                 <tbody class="text-gray-600">
                     {% for user in users %}
                     <tr class="border-b hover:bg-gray-50">
                         <td class="px-6 py-4 text-sm font-medium">{{ user.username }}</td>
+                        <td class="px-6 py-4 text-sm">{{ user.phone_number }}</td>
+                        <td class="px-6 py-4 text-sm">{{ user.first_name }}</td>
+                        <td class="px-6 py-4 text-sm">{{ user.last_name }}</td>
+
                         <td class="px-6 py-4 text-sm">{{ user.email }}</td>
                         <td class="px-6 py-4 text-sm">{{ user.role }}</td>
                         <td class="px-6 py-4 space-x-4 text-sm">

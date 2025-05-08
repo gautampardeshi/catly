@@ -10,6 +10,7 @@ class CustomUser(AbstractUser):
         ('CONSUMER', 'Consumer'),
     )
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='CONSUMER')
+    phone_number= models.CharField(max_length=15, null=True, blank=True)
 
     def __str__(self):
         return f"{self.username} ({self.role})"
@@ -56,7 +57,7 @@ class product_Order(models.Model):
     
 
     def __str__(self):
-        return f"Order #{self.id} - {self.full_name}"
+        return f"Order #{self.id} - {self.first_name} {self.last_name}"
     
     @property
     def total_price(self):

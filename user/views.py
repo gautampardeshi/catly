@@ -321,7 +321,7 @@ class CheckoutView(View):
             # ✅ User assign karo - ye line fix karti hai problem
             order = product_Order.objects.create(
                 # user=request.user,  # ✅ Ye pehle None tha, ab fix hai
-                full_name=first_name,
+                first_name=first_name,
                 last_name=last_name,
                 address=address,
                 city=city,
