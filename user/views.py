@@ -14,16 +14,76 @@ from django.http import JsonResponse, HttpResponse
 from django.template.loader import render_to_string
 from django.core.mail import send_mail
 from django.conf import settings
-from .models import Product
+from .models import *
 from django.views.generic import ListView
 from .models import Product, Cart, CartItem
-# third-party
 import google.generativeai as genai
 from weasyprint import HTML
-
-# local imports
 from .forms import SignUpForm, ContactForm, CheckoutForm
-from .models import CustomUser, Product, Cart, CartItem, product_Order
+from django.views import View
+from django.http import HttpResponse
+from weasyprint import HTML
+import tempfile
+from django.views import View
+from django.views.generic import TemplateView
+from django.views import View
+from django.views import View
+from django.contrib import messages
+import razorpay
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView
+from django.urls import reverse_lazy
+from .models import CustomUser
+from .forms import SignUpForm
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.shortcuts import redirect
+from django.views import View
+from django.shortcuts import render
+from .models import product_Order, OrderItem
+from django.views import View
+from .models import Product
+from django.contrib import messages
+from django.views.generic.edit import CreateView
+from django.urls import reverse_lazy
+from .models import Product
+from .forms import ProductForm
+from django.views import View
+from .models import Product, product_Order, OrderItem
+from django.http import HttpResponse
+from weasyprint import HTML
+import tempfile
+from django.contrib import messages
+from django.conf import settings
+import razorpay
+from django.http import HttpResponse
+from django.core.mail import EmailMessage
+from django.shortcuts import get_object_or_404
+from weasyprint import HTML
+from io import BytesIO
+import barcode
+from barcode.writer import ImageWriter
+import base64
+from django.shortcuts import redirect
+from django.urls import reverse
+from django.views import View
+from django.http import HttpResponse
+import weasyprint
+import tempfile
+from .models import product_Order
+from django.template.loader import get_template
+# ✅ User Dashboard View (for logged-in user)
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.generic import TemplateView
+from .models import product_Order  # make sure the model name is correct
+from django.views.generic.edit import FormView
+from .models import Contact
+from .forms import ContactForm
+from django.core.mail import send_mail
+from django.conf import settings
+from django.contrib import messages
+from django.urls import reverse_lazy
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.generic import TemplateView
+from .models import product_Order  # Make sure this model is correctly defined
 
 def home(request):
     return render(request, 'home.html')
@@ -56,8 +116,8 @@ class LoginView(View):
             login(request, user)
             if user.role == 'ADMIN':
                 return redirect('user:admin_dashboard')
-            elif user.role == 'SELLER':
-                return redirect('user:seller_dashboard')
+            elif user.role == 'USER':
+                return redirect('user:user_dashboard')
             elif user.role == 'CONSUMER':
                 return redirect('user:consumer_dashboard')
             else:
@@ -67,20 +127,11 @@ class LoginView(View):
             return render(request, 'accounts/login.html', {'error': 'Invalid username or password.'})
 
 
-class CustomLogoutView(LogoutView):
-    next_page = reverse_lazy('user:login')
-    def get(self, request, *args, **kwargs):
-        # Treat GET requests as POST to allow logout via GET
-        return self.post(request, *args, **kwargs)
+class CustomLogoutView(View):
+    def get(self, request):
+        logout(request)
+        return redirect(reverse_lazy('user:login'))
 
-# users_details
-
-from django.views.generic import ListView, CreateView, UpdateView, DeleteView
-from django.urls import reverse_lazy
-from .models import CustomUser
-from .forms import SignUpForm
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.shortcuts import redirect
 
 class UserListView(LoginRequiredMixin, ListView):
     model = CustomUser
@@ -104,19 +155,94 @@ class UserDeleteView(LoginRequiredMixin, DeleteView):
     template_name = 'accounts/user_confirm_delete.html'
     success_url = reverse_lazy('user_list')
 
-class AdminDashboardView(LoginRequiredMixin, View):
-    def get(self, request):
-        return render(request, 'accounts/admin_dashboard.html')
 
-class SellerDashboardView(LoginRequiredMixin, View):
-    def get(self, request):
-        return render(request, 'accounts/seller_dashboard.html')
 
-from django.shortcuts import render, redirect
-from django.views import View
-from django.contrib.auth.mixins import LoginRequiredMixin
-from .models import Product
-from django.contrib import messages
+@method_decorator(login_required, name='dispatch')
+class AdminDashboardView(View):
+    def get(self, request):
+        orders = product_Order.objects.all().order_by('-created_at')
+        total_orders = orders.count()
+        # Remove pending_orders and delivered_orders count if status field doesn't exist
+        context = {
+            'orders': orders,
+            'total_orders': total_orders,
+        }
+        return render(request, 'accounts/admin_dashboard.html', context)
+
+@method_decorator(login_required, name='dispatch')
+class AdminOrderListView(View):
+    def get(self, request):
+        orders = product_Order.objects.all().order_by('-created_at')
+        return render(request, 'accounts/admin_order_list.html', {'orders': orders})
+
+    def post(self, request):
+        order_id = request.POST.get('order_id')
+        new_status = request.POST.get('status')
+
+        if order_id and new_status:
+            order = get_object_or_404(product_Order, id=order_id)
+            if new_status in dict(product_Order.STATUS_CHOICES).keys():
+                order.status = new_status
+                order.save()
+                messages.success(request, f"✅ Order #{order.id} updated to '{new_status}'")
+            else:
+                messages.error(request, "⚠️ Invalid status value.")
+        else:
+            messages.error(request, "⚠️ Missing order ID or status.")
+
+        return redirect('admin_order_list')
+
+# accounts/views.py
+
+
+def generate_invoice_pdf(request, order_id):
+    order = product_Order.objects.get(id=order_id)
+    template = get_template('accounts/invoice_template.html')  # aapka invoice template
+    html = template.render({'order': order})
+
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="invoice_{order_id}.pdf"'
+    
+    weasyprint.HTML(string=html).write_pdf(response)
+    return response
+
+
+class AdminContactListView(ListView):
+    model = Contact
+    template_name = 'accounts/contact_messages.html'
+    context_object_name = 'contacts'
+    ordering = ['-created_at']
+
+
+def update_order_status(request, order_id):
+    if request.method == "POST":
+        order = get_object_or_404(product_Order, id=order_id)
+        status = request.POST.get("status")
+        if status in ['Pending', 'Shipped', 'Delivered']:
+            order.status = status
+            order.save()
+        return redirect('user:all_orders')
+
+def all_orders_view(request):
+    orders = product_Order.objects.all().order_by('-id')  # latest order first
+    return render(request, 'accounts/admin_order_list.html', {'orders': orders})
+
+
+class UserDashboardView(LoginRequiredMixin, TemplateView):
+    template_name = "accounts/user_dashboard.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        orders = product_Order.objects.filter(user=self.request.user).order_by('-created_at')
+
+        context['recent_orders'] = orders[:5]
+        context['total_orders'] = orders.count()
+        context['total_spent'] = sum(order.total_price for order in orders)
+        context['pending_orders'] = orders.filter(status='Pending').count()
+        context['invoices_generated'] = orders.count()  # adjust if you add invoices later
+
+        return context
 
 class ConsumerDashboardView(LoginRequiredMixin, View):
     login_url = '/login/'  # 👈 This line ensures unauthenticated users are redirected
@@ -163,12 +289,17 @@ class AIChatView(View):
 
         return JsonResponse({'reply': reply})
 
+
 class ContactView(FormView):
     template_name = 'accounts/contact.html'
     form_class = ContactForm
     success_url = reverse_lazy('user:contact')
 
     def form_valid(self, form):
+        # Save to DB
+        form.save()
+
+        # Send Email
         name = form.cleaned_data['name']
         email = form.cleaned_data['email']
         phone_number = form.cleaned_data['phone_number']
@@ -185,11 +316,6 @@ class ContactView(FormView):
         return super().form_valid(form)
 
 
-from django.views.generic.edit import CreateView
-from django.urls import reverse_lazy
-from .models import Product
-from .forms import ProductForm
-
 class ProductCreateView(CreateView):
     model = Product
     form_class = ProductForm
@@ -199,13 +325,12 @@ class ProductCreateView(CreateView):
         product = form.save()  # Product ko save karein
         return redirect('user:product_detail', pk=product.pk)
 
-# Product Detail View: Ek specific product ka detail dikhata hai.
 class ProductDetailView(DetailView):
     model = Product
     template_name = 'accounts/product_detail.html'  # Ensure this template exists in your templates folder
     context_object_name = 'product'
 
-# Product List View: Sare products ki list dikhata hai.
+
 class ProductListView(ListView):
     model = Product
     template_name = 'accounts/product_list.html'
@@ -214,34 +339,43 @@ class ProductListView(ListView):
 class AddToCartView(View):
     def post(self, request, product_id):
         product = get_object_or_404(Product, id=product_id)
-
-        # Get or create cart using session key
         session_key = request.session.session_key
         if not session_key:
             request.session.create()
             session_key = request.session.session_key
-
         cart, _ = Cart.objects.get_or_create(session_key=session_key, user=None)
-
-        cart_item, created = CartItem.objects.get_or_create(cart=cart, product=product)
-        if not created:
+        cart_item_qs = CartItem.objects.filter(cart=cart, product=product)
+        if cart_item_qs.exists():
+            cart_item = cart_item_qs.first()
             cart_item.quantity += 1
-        cart_item.save()
+            cart_item.save()
+        else:
+            CartItem.objects.create(cart=cart, product=product, quantity=1)
 
         return redirect('user:cart_detail')
 
 
 class RemoveFromCartView(View):
     def post(self, request, cart_item_id):
-        CartItem.objects.filter(id=cart_item_id).delete()
+        session_key = request.session.session_key
+        if not session_key:
+            return redirect('user:cart_detail')
+
+        cart = get_object_or_404(Cart, session_key=session_key, user=None)
+        CartItem.objects.filter(id=cart_item_id, cart=cart).delete()
         return redirect('user:cart_detail')
 
 
 class UpdateCartView(View):
     def post(self, request, cart_item_id):
-        cart_item = get_object_or_404(CartItem, id=cart_item_id)
-        new_quantity = int(request.POST.get('quantity', 1))
+        session_key = request.session.session_key
+        if not session_key:
+            return redirect('user:cart_detail')  # Or handle error
 
+        cart = get_object_or_404(Cart, session_key=session_key, user=None)
+        cart_item = get_object_or_404(CartItem, id=cart_item_id, cart=cart)
+
+        new_quantity = int(request.POST.get('quantity', 1))
         if new_quantity > 0:
             cart_item.quantity = new_quantity
             cart_item.save()
@@ -273,91 +407,89 @@ class CartDetail(TemplateView):
         context['total_price'] = total_price
         return context 
 
-from django.shortcuts import render, redirect, get_object_or_404
-from django.views import View
-from .models import Product, product_Order, OrderItem
-from django.http import HttpResponse
-from django.template.loader import render_to_string
-from weasyprint import HTML
-import tempfile
 
-from django.views import View
-from django.shortcuts import render, redirect
-from .forms import CheckoutForm
-from .models import Product, product_Order, OrderItem
 
 class CheckoutView(View):
     def get(self, request):
-        cart = request.session.get('cart', {})
-        cart_items = []
-        total_price = 0
+        session_key = request.session.session_key
+        if not session_key:
+            request.session.create()
+            session_key = request.session.session_key
 
-        for product_id, quantity in cart.items():
-            product = Product.objects.get(id=product_id)
-            subtotal = product.price * quantity
-            total_price += subtotal
-            cart_items.append({'product': product, 'quantity': quantity, 'subtotal': subtotal})
+        cart = get_object_or_404(Cart, session_key=session_key, user=None)
+        cart_items = CartItem.objects.filter(cart=cart)
 
-        form = CheckoutForm()
+        total_price = sum(item.product.price * item.quantity for item in cart_items)
+        total_amount_in_paise = int(total_price * 100)
 
-        return render(request, 'accounts/checkout.html', {
-            'cart_items': cart_items,
-            'total_price': total_price,
-            'form': form,
+        if total_amount_in_paise < 100:
+            messages.error(request, "Your order amount must be at least ₹1 to proceed.")
+            return redirect("user:cart_detail")
+
+        client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_SECRET_KEY))
+        payment = client.order.create({
+            'amount': total_amount_in_paise,
+            'currency': 'INR',
+            'payment_capture': 1
         })
 
+        context = {
+            'cart_items': cart_items,
+            'total_price': total_price,
+            'razorpay_order_id': payment['id'],
+            'razorpay_key': settings.RAZORPAY_KEY_ID,
+            'total_amount_in_paise': total_amount_in_paise,
+        }
+        return render(request, 'accounts/checkout.html', context)
+
     def post(self, request):
-        form = CheckoutForm(request.POST)
+        session_key = request.session.session_key
+        if not session_key:
+            messages.error(request, "Session expired. Please try again.")
+            return redirect("user:cart_detail")
 
-        if form.is_valid():
-            first_name = form.cleaned_data['first_name']
-            last_name = form.cleaned_data['last_name']
-            address = form.cleaned_data['address']
-            city = form.cleaned_data['city']
-            state = form.cleaned_data['state']
-            zip_code = form.cleaned_data['zip_code']
-            phone_number = form.cleaned_data['phone_number']
+        cart = get_object_or_404(Cart, session_key=session_key, user=None)
+        cart_items = CartItem.objects.filter(cart=cart)
 
-            # ✅ User assign karo - ye line fix karti hai problem
-            order = product_Order.objects.create(
-                # user=request.user,  # ✅ Ye pehle None tha, ab fix hai
-                first_name=first_name,
-                last_name=last_name,
-                address=address,
-                city=city,
-                state=state,
-                zip_code=zip_code,
-                phone_number=phone_number,
-                payment_status='Pending'
+        # Fetch form data
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
+        address = request.POST.get('address')
+        city = request.POST.get('city')
+        state = request.POST.get('state')
+        zip_code = request.POST.get('zip_code')
+        phone = request.POST.get('phone_number')
+        payment_id = request.POST.get('razorpay_payment_id')
+        email = request.POST.get('email')
+
+        total_price = sum(item.product.price * item.quantity for item in cart_items)
+
+        order = product_Order.objects.create(
+            user=request.user if request.user.is_authenticated else None,  # ✅ yeh zaroor likh!
+            session_key=session_key,
+            email=email,
+            first_name=first_name,
+            last_name=last_name,
+            address=address,
+            city=city,
+            state=state,
+            zip_code=zip_code,
+            phone_number=phone,
+            razorpay_order_id=payment_id,
+            total_price=total_price
+        )
+
+        for item in cart_items:
+            OrderItem.objects.create(
+                order=order,
+                product=item.product,
+                quantity=item.quantity,
+                price=item.product.price
             )
 
-            cart = request.session.get('cart', {})
-            for product_id, quantity in cart.items():
-                product = Product.objects.get(id=product_id)
-                OrderItem.objects.create(order=order, product=product, quantity=quantity)
+        cart_items.delete()
+        return redirect('user:generate_invoice', order_id=order.id)
 
-            request.session['order_id'] = order.id
-            return redirect('user:payment')
-
-        else:
-            cart = request.session.get('cart', {})
-            cart_items = []
-            total_price = 0
-            for product_id, quantity in cart.items():
-                product = Product.objects.get(id=product_id)
-                subtotal = product.price * quantity
-                total_price += subtotal
-                cart_items.append({'product': product, 'quantity': quantity, 'subtotal': subtotal})
-
-            return render(request, 'accounts/checkout.html', {
-                'form': form,
-                'cart_items': cart_items,
-                'total_price': total_price
-            })
-
-
-from django.shortcuts import redirect
-from django.urls import reverse
 
 class PaymentView(View):
     def get(self, request):
@@ -373,36 +505,51 @@ class PaymentView(View):
             order.payment_status = 'Paid'
             order.save()
             return redirect('user:payment_success', order.id)
-    
-from django.views.generic import TemplateView
-from user.models import product_Order  # adjust import based on your app
 
 class PaymentSuccessView(View):
     def get(self, request, order_id):
         order = get_object_or_404(product_Order, id=order_id)
         return render(request, 'accounts/payment_success.html', {'order': order})
-
-from django.views import View
-from django.http import HttpResponse
-from django.template.loader import render_to_string
-from weasyprint import HTML
-from .models import product_Order
-from django.http import HttpResponse
-from django.template.loader import get_template
-import weasyprint
-from .models import product_Order  # adjust path to your model
-
+ 
 class GenerateInvoiceView(View):
     def get(self, request, order_id):
         order = get_object_or_404(product_Order, id=order_id)
-        html_string = render_to_string('accounts/invoice.html', {'order': order})
-        html = HTML(string=html_string)
-        result = html.write_pdf()
-        response = HttpResponse(content_type='application/pdf')
-        response['Content-Disposition'] = f'inline; filename=invoice_{order_id}.pdf'
-        response.write(result)
-        return response
+        order_items = OrderItem.objects.filter(order=order)
 
+        for item in order_items:
+            item.subtotal = item.price * item.quantity
+
+        # Barcode generation
+        ean = barcode.get('code128', str(order.id), writer=ImageWriter())
+        buffer = BytesIO()
+        ean.write(buffer)
+        barcode_base64 = base64.b64encode(buffer.getvalue()).decode()
+
+        # Render HTML with barcode
+        html_string = render_to_string('accounts/invoice.html', {
+            'order': order,
+            'order_items': order_items,
+            'barcode_base64': barcode_base64,
+        })
+
+        # Generate PDF
+        pdf_file = HTML(string=html_string).write_pdf()
+
+        # Email sending
+        if order.email:  # Assuming you have an email field in product_Order
+            email = EmailMessage(
+                subject=f"Invoice for Order #{order.id}",
+                body="Dear Customer,\n\nPlease find attached your invoice.\n\nThank you for shopping with us!",
+                from_email="noreply@catly.com",
+                to=[order.email]
+            )
+            email.attach(f"invoice_{order.id}.pdf", pdf_file, 'application/pdf')
+            email.send()
+
+        # Return PDF to browser
+        response = HttpResponse(pdf_file, content_type='application/pdf')
+        response['Content-Disposition'] = f'inline; filename=invoice_{order.id}.pdf'
+        return response
 
 class MyOrdersView(LoginRequiredMixin, ListView):
     model = product_Order

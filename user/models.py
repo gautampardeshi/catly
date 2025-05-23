@@ -6,7 +6,7 @@ from django.utils import timezone
 class CustomUser(AbstractUser):
     ROLE_CHOICES = (
         ('ADMIN', 'Admin'),
-        ('SELLER', 'Seller'),
+        ('USER', 'User'),
         ('CONSUMER', 'Consumer'),
     )
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='CONSUMER')
@@ -14,6 +14,16 @@ class CustomUser(AbstractUser):
 
     def __str__(self):
         return f"{self.username} ({self.role})"
+
+class Contact(models.Model):
+    name = models.CharField(max_length=100)
+    email = models.EmailField()
+    message = models.TextField()
+    phone_number = models.CharField(max_length=20)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.name} - {self.email}"
 
 class Product(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
@@ -44,37 +54,44 @@ class CartItem(models.Model):
 
 # models.py
 class product_Order(models.Model):
+    STATUS_CHOICES = (
+        ('Pending', 'Pending'),
+        ('Shipped', 'Shipped'),
+        ('Delivered', 'Delivered'),
+    )
+    session_key = models.CharField(max_length=255, null=True, blank=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
-    first_name = models.CharField(max_length=35)
-    last_name = models.CharField(max_length=35)
+    first_name = models.CharField(max_length=100)
+    last_name = models.CharField(max_length=100)
     address = models.TextField()
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
     city = models.CharField(max_length=45, null=True, blank=True)
     state = models.CharField(max_length=45)
     zip_code = models.CharField(max_length=35)  
     phone_number = models.CharField(max_length=15) 
-    payment_status = models.CharField(max_length=45, default='Pending')
+    razorpay_order_id = models.CharField(max_length=200, blank=True)
+    total_price = models.FloatField()   
     created_at = models.DateTimeField(auto_now_add=True)
-    
+    email = models.EmailField()
 
-    def __str__(self):
-        return f"Order #{self.id} - {self.first_name} {self.last_name}"
-    
-    @property
-    def total_price(self):
-        return sum(item.subtotal for item in self.items.all())
+
+def full_name(self):
+        return f"{self.first_name} {self.last_name}"
+
+def __str__(self):
+        return f"Order #{self.id} by {self.user.email}"
+
+
 
 
 class OrderItem(models.Model):
-    order = models.ForeignKey(product_Order, related_name='items', on_delete=models.CASCADE)
+    order = models.ForeignKey('product_Order', related_name='items', on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    quantity = models.PositiveIntegerField(default=1)
+    quantity = models.PositiveIntegerField()
     price = models.DecimalField(default=0.00,max_digits=10, decimal_places=2)  # 👈 Add this line
-    @property
-    def subtotal(self):
-        return self.price * self.quantity
-
     def __str__(self):
         return f"{self.quantity} x {self.product.name}"
+
 
 class rewiew(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)

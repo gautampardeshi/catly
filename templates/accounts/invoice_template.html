@@ -1,0 +1,54 @@
+<!-- templates/accounts/invoice_template.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Invoice</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        h1 { text-align: center; }
+        .section { margin-bottom: 20px; }
+        .details, .items { width: 100%; border-collapse: collapse; }
+        .details td, .items th, .items td { border: 1px solid #ccc; padding: 8px; }
+        .items th { background-color: #f5f5f5; }
+    </style>
+</head>
+<body>
+    <h1>Invoice</h1>
+
+    <div class="section">
+        <table class="details">
+            <tr><td><strong>Order ID:</strong></td><td>#{{ order.id }}</td></tr>
+            <tr><td><strong>Name:</strong></td><td>{{ order.first_name }} {{ order.last_name }}</td></tr>
+            <tr><td><strong>Email:</strong></td><td>{{ order.email }}</td></tr>
+            <tr><td><strong>Phone:</strong></td><td>{{ order.phone_number }}</td></tr>
+            <tr><td><strong>Address:</strong></td><td>{{ order.address }}, {{ order.city }}, {{ order.state }} - {{ order.zip_code }}</td></tr>
+            <tr><td><strong>Status:</strong></td><td>{{ order.status }}</td></tr>
+            <tr><td><strong>Order Date:</strong></td><td>{{ order.created_at|date:"d M Y, h:i A" }}</td></tr>
+        </table>
+    </div>
+
+    <div class="section">
+        <h2>Order Items</h2>
+        <table class="items">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Qty</th>
+                    <th>Price</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in order.items.all %}
+                <tr>
+                    <td>{{ item.product.name }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>₹{{ item.product.price }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <h3>Total: ₹{{ order.total_price }}</h3>
+</body>
+</html>

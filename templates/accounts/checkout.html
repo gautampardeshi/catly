@@ -1,138 +1,79 @@
 {% load static %}
-{% load form_filters %}
-
 <!DOCTYPE html>
-<html lang="en">
-
+<html>
 <head>
-  <meta charset="UTF-8">
   <title>Checkout | Catly</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
+<body class="bg-gray-100">
 
-<body class="bg-gray-100 font-sans">
+  <div class="max-w-4xl mx-auto mt-10 p-8 bg-white rounded-2xl shadow">
+    <h2 class="text-3xl font-bold text-green-600 mb-6">🧾 Checkout</h2>
 
-  <div class="max-w-3xl mx-auto my-12 bg-white p-10 rounded-2xl shadow-xl">
-    <h2 class="text-4xl font-extrabold text-center text-gray-800 mb-10">🧾 Checkout</h2>
-
-    <!-- Checkout Form -->
-    <form method="post" class="space-y-8">
+    <form method="post" id="checkout-form">
       {% csrf_token %}
-
+      
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-        <div>
-          <label class="block text-gray-700 font-semibold mb-1">First Name</label>
-          {{ form.first_name|add_class:"w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500" }}
-          {% if form.first_name.errors %}
-            <p class="text-red-600 text-sm mt-1">{{ form.first_name.errors.0 }}</p>
-          {% endif %}
-        </div>
-        
-        <!-- Last Name -->
-        <div>
-          <label class="block text-gray-700 font-semibold mb-1">Last Name</label>
-          {{ form.last_name|add_class:"w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500" }}
-          {% if form.last_name.errors %}
-            <p class="text-red-600 text-sm mt-1">{{ form.last_name.errors.0 }}</p>
-          {% endif %}
-        </div>
-        
-
-        <div>
-          <label class="block text-gray-700 font-semibold mb-1">Phone Number</label>
-          {{ form.phone_number|add_class:"w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500" }}
-          {% if form.phone_number.errors %}
-            <p class="text-red-600 text-sm mt-1">{{ form.phone_number.errors.0 }}</p>
-          {% endif %}
-        </div>
-
-        <div>
-          <label class="block text-gray-700 font-semibold mb-1">City</label>
-          {{ form.city|add_class:"w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500" }}
-          {% if form.city.errors %}
-            <p class="text-red-600 text-sm mt-1">{{ form.city.errors.0 }}</p>
-          {% endif %}
-        </div>
-
-        <div>
-          <label class="block text-gray-700 font-semibold mb-1">State</label>
-          {{ form.state|add_class:"w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500" }}
-          {% if form.state.errors %}
-            <p class="text-red-600 text-sm mt-1">{{ form.state.errors.0 }}</p>
-          {% endif %}
-        </div>
-
-        <div>
-          <label class="block text-gray-700 font-semibold mb-1">ZIP Code</label>
-          {{ form.zip_code|add_class:"w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500" }}
-          {% if form.zip_code.errors %}
-            <p class="text-red-600 text-sm mt-1">{{ form.zip_code.errors.0 }}</p>
-          {% endif %}
-        </div>
-
-        <div class="md:col-span-2">
-          <label class="block text-gray-700 font-semibold mb-1">Address</label>
-          {{ form.address|add_class:"w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500" }}
-          {% if form.address.errors %}
-            <p class="text-red-600 text-sm mt-1">{{ form.address.errors.0 }}</p>
-          {% endif %}
-        </div>
+        <input type="text" name="first_name" required placeholder="First Name"
+               class="p-3 border rounded-lg">
+        <input type="text" name="last_name" required placeholder="Last Name"
+               class="p-3 border rounded-lg">
+        <input type="text" name="phone_number" required placeholder="Phone Number"
+               class="p-3 border rounded-lg">
+        <input type="email" name="email" required placeholder="Email"
+                class="p-3 border rounded-lg">
+        <input type="text" name="city" required placeholder="City"
+               class="p-3 border rounded-lg">
+        <input type="text" name="state" required placeholder="State"
+               class="p-3 border rounded-lg">
+        <input type="text" name="zip_code" required placeholder="ZIP Code"
+               class="p-3 border rounded-lg">
+        <textarea name="address" required placeholder="Address"
+                  class="md:col-span-2 p-3 border rounded-lg"></textarea>
       </div>
 
-      <!-- Submit Button -->
-      <button type="submit"
-        class="w-full bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-lg text-lg font-semibold transition duration-200">
-        Proceed to Payment
+      <input type="hidden" name="razorpay_payment_id" id="razorpay_payment_id">
+
+      <button type="button" id="razorpay-payment-button"
+              class="mt-6 w-full py-4 bg-green-600 text-white rounded-xl text-lg font-semibold hover:bg-green-700">
+        💳 Pay ₹{{ total_price }} with Razorpay
       </button>
     </form>
-
-    <!-- Divider -->
-    <div class="flex items-center my-10">
-      <div class="flex-grow border-t border-gray-300"></div>
-      <span class="mx-4 text-gray-500 font-medium">OR</span>
-      <div class="flex-grow border-t border-gray-300"></div>
-    </div>
-
-    <!-- Razorpay Button -->
-    <div class="text-center">
-      <button id="razorpay-payment-button"
-        class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg text-lg font-semibold transition duration-200">
-        Pay with Razorpay
-      </button>
-    </div>
   </div>
 
   <!-- Razorpay Script -->
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
   <script>
-    var options = {
-      key: '{{ razorpay_key }}',
-      amount: '{{ total_amount_in_paise }}',
-      currency: 'INR',
-      name: 'Catly Store',
-      description: 'Order Payment',
-      handler: function (response) {
-        window.location.href = '/payment-success/?payment_id=' + response.razorpay_payment_id;
-      },
-      prefill: {
-        name: '{{ request.user.get_full_name }}',
-        email: '{{ request.user.email }}',
-        contact: '9876543210'
-      },
-      theme: {
-        color: "#10b981"
-      }
-    };
+    document.addEventListener("DOMContentLoaded", function () {
+      var options = {
+        key: "{{ razorpay_key }}",
+        amount: "{{ total_amount_in_paise }}",
+        currency: "INR",
+        name: "Catly Store",
+        description: "Secure Payment",
+        order_id: "{{ razorpay_order_id }}",
+        handler: function (response) {
+          document.getElementById('razorpay_payment_id').value = response.razorpay_payment_id;
+          document.getElementById('checkout-form').submit();
+        },
+        prefill: {
+          name: "{{ request.user.get_full_name }}",
+          email: "{{ request.user.email }}",
+          contact: "9999999999"
+        },
+        theme: {
+          color: "#10b981"
+        }
+      };
 
-    var rzp1 = new Razorpay(options);
-    document.getElementById('razorpay-payment-button').onclick = function (e) {
-      rzp1.open();
-      e.preventDefault();
-    }
+      var rzp = new Razorpay(options);
+      document.getElementById('razorpay-payment-button').onclick = function (e) {
+        rzp.open();
+        e.preventDefault();
+      };
+    });
   </script>
 
 </body>
-
 </html>

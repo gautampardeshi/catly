@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>User Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans">
+
+  <!-- Sidebar Toggle Button -->
+  <button id="toggleSidebar" class="fixed top-4 left-4 z-50 bg-blue-600 text-white px-4 py-2 rounded-md shadow-lg focus:outline-none">
+    ☰ Menu
+  </button>
+
+  <!-- Sidebar -->
+  <aside id="sidebar" class="fixed top-0 left-0 w-64 h-full bg-white shadow-lg transform -translate-x-full transition-transform duration-300 z-40">
+    <div class="p-6 h-full flex flex-col justify-between">
+      <div>
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-xl font-bold text-blue-600">Catly 🐾</h2>
+          <button id="closeSidebar" class="text-gray-500 hover:text-red-600 text-2xl leading-none">&times;</button>
+        </div>
+        <nav class="space-y-4">
+          <a href="{% url 'user:product_list' %}" class="block text-gray-700 hover:text-blue-600">🛍️ All Products</a>
+          <a href="{% url 'user:cart_detail' %}" class="block text-gray-700 hover:text-blue-600">🛒 My Cart</a>
+          <a href="{% url 'user:logout' %}" class="block text-red-600 hover:underline">🚪 Logout</a>
+        </nav>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Overlay -->
+  <div id="overlay" class="fixed inset-0 bg-black bg-opacity-30 hidden z-30"></div>
+
+  <!-- Main Content -->
+<!-- Little more than ml-72 -->
+<div class="p-6 ml-0 lg:ml-56 transition-all duration-300">
+  <div class="max-w-7xl mx-auto">
+      <h1 class="text-3xl font-bold text-blue-600 mb-6">Welcome, {{ request.user.first_name }} 👋</h1>
+
+      <!-- Stats -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white p-6 rounded-lg shadow text-center">
+          <h2 class="text-2xl font-bold text-blue-600">{{ total_orders }}</h2>
+          <p class="text-gray-500 mt-1">Total Orders</p>
+        </div>
+        <div class="bg-white p-6 rounded-lg shadow text-center">
+          <h2 class="text-2xl font-bold text-green-600">₹{{ total_spent }}</h2>
+          <p class="text-gray-500 mt-1">Amount Spent</p>
+        </div>
+        <div class="bg-white p-6 rounded-lg shadow text-center">
+          <h2 class="text-2xl font-bold text-yellow-600">{{ pending_orders }}</h2>
+          <p class="text-gray-500 mt-1">Pending Deliveries</p>
+        </div>
+        <div class="bg-white p-6 rounded-lg shadow text-center">
+          <h2 class="text-2xl font-bold text-purple-600">{{ invoices_generated }}</h2>
+          <p class="text-gray-500 mt-1">Invoices</p>
+        </div>
+      </div>
+
+      <!-- Orders Table -->
+      <div class="bg-white p-6 rounded-lg shadow">
+        <h2 class="text-xl font-semibold mb-4">🧾 Recent Orders</h2>
+        <div class="overflow-x-auto">
+          <table class="min-w-full table-auto text-sm">
+            <thead>
+              <tr class="bg-gray-100 text-gray-700">
+                <th class="px-4 py-2 text-left">Order ID</th>
+                <th class="px-4 py-2 text-left">Date</th>
+                <th class="px-4 py-2 text-left">Status</th>
+                <th class="px-4 py-2 text-left">Total</th>
+                <th class="px-4 py-2 text-left">Invoice</th>
+              </tr>
+            </thead>
+            <tbody class="text-gray-700">
+              {% for order in recent_orders %}
+              <tr class="border-b">
+                <td class="px-4 py-2">#{{ order.id }}</td>
+                <td class="px-4 py-2">{{ order.created_at|date:"d M Y" }}</td>
+                <td class="px-4 py-2">{{ order.status }}</td>
+                <td class="px-4 py-2">₹{{ order.total_price }}</td>
+                <td class="px-4 py-2">
+                  <a href="{% url 'user:download_invoice' order.id %}" class="text-blue-500 hover:underline" target="_blank">Download</a>
+                </td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="5" class="text-center text-gray-500 py-4">No orders found.</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript for Sidebar -->
+  <script>
+    const sidebar = document.getElementById('sidebar');
+    const toggleBtn = document.getElementById('toggleSidebar');
+    const closeBtn = document.getElementById('closeSidebar');
+    const overlay = document.getElementById('overlay');
+
+    toggleBtn.addEventListener('click', () => {
+      sidebar.classList.remove('-translate-x-full');
+      overlay.classList.remove('hidden');
+    });
+
+    closeBtn.addEventListener('click', () => {
+      sidebar.classList.add('-translate-x-full');
+      overlay.classList.add('hidden');
+    });
+
+    overlay.addEventListener('click', () => {
+      sidebar.classList.add('-translate-x-full');
+      overlay.classList.add('hidden');
+    });
+  </script>
+</body>
+</html>

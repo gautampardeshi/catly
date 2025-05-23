@@ -18,12 +18,11 @@ class SignUpForm(UserCreationForm):
         return phone_number
 
 from django import forms
-
-class ContactForm(forms.Form):
-    name = forms.CharField(max_length=100, label="Your Name")
-    email = forms.EmailField(label="Your Email")
-    phone_number = forms.CharField(max_length=15)
-    message = forms.CharField(widget=forms.Textarea, label="Your Message")
+from .models import Contact
+class ContactForm(forms.ModelForm):
+    class Meta:
+        model = Contact
+        fields = ['name', 'email', 'phone_number', 'message']
 
 class CheckoutForm(forms.Form):
     first_name = forms.CharField(label='First Name', max_length=100)

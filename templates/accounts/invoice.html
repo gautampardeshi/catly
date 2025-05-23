@@ -1,51 +1,144 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Invoice #{{ order.id }}</title>
     <style>
-        body { font-family: Arial, sans-serif; padding: 20px; }
-        h1 { text-align: center; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #ccc; padding: 10px; text-align: left; }
-        .total { text-align: right; font-weight: bold; margin-top: 20px; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 40px;
+            color: #333;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid #4a4a4a;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            max-height: 60px;
+        }
+
+        .invoice-title {
+            font-size: 32px;
+            font-weight: bold;
+            color: #4a4a4a;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #555;
+        }
+
+        .info {
+            margin-bottom: 25px;
+            font-size: 14px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        th, td {
+            padding: 12px;
+            border: 1px solid #ccc;
+        }
+
+        th {
+            background-color: #f0f0f0;
+            text-align: left;
+        }
+
+        tfoot td {
+            font-weight: bold;
+            background-color: #f9f9f9;
+        }
+
+        .barcode {
+            margin-top: 40px;
+            text-align: center;
+        }
+
+        .barcode img {
+            height: 80px;
+            margin: 10px auto;
+        }
+
+        .footer {
+            margin-top: 50px;
+            text-align: center;
+            font-size: 12px;
+            color: #777;
+        }
     </style>
 </head>
 <body>
-    <h1>Invoice</h1>
-    <p><strong>Order ID:</strong> {{ order.id }}</p>
-    <p><strong>Date:</strong> {{ order.created_at|date:"d M Y H:i" }}</p>
-    <p><strong>Customer:</strong> {{ order.full_name }}</p>
-    <p><strong>Address:</strong> {{ order.address }}, {{ order.city }}, {{ order.state }} - {{ order.zip_code }}</p>
-    <p><strong>Phone:</strong> {{ order.phone_number }}</p>
 
+    <!-- Header with Logo and Invoice Title -->
+    <div class="header">
+        <img src="{{ logo_url }}" alt="Company Logo" class="logo">
+        <div class="invoice-title">INVOICE</div>
+    </div>
+
+    <!-- Customer & Order Info -->
+    <div class="info">
+        <p class="section-title">Billed To:</p>
+        <p>{{ order.first_name }} {{ order.last_name }}<br>
+        {{ order.address }}, {{ order.city }}, {{ order.state }} - {{ order.zip_code }}<br>
+        Phone: {{ order.phone_number }}</p>
+
+        <p><strong>Invoice No:</strong> #{{ order.id }}<br>
+        <strong>Date:</strong> {{ order.created_at }}</p>
+    </div>
+
+    <!-- Items Table -->
     <table>
         <thead>
             <tr>
                 <th>Product</th>
+                <th>Unit Price</th>
                 <th>Qty</th>
-                <th>Price</th>
                 <th>Subtotal</th>
             </tr>
         </thead>
         <tbody>
-            {% if order.items.all %}
-                {% for item in order.items.all %}
-                    <tr>
-                        <td>{{ item.product.name }}</td>
-                        <td>{{ item.quantity }}</td>
-                        <td>₹{{ item.price }}</td>
-                        <td>₹{{ item.subtotal|floatformat:2 }}</td>  <!-- Make sure subtotal is calculated correctly -->
-                    </tr>
-                {% endfor %}
-            {% else %}
-                <tr><td colspan="4">No items in this order.</td></tr>
-            {% endif %}
+            {% for item in order_items %}
+            <tr>
+                <td>{{ item.product.name }}</td>
+                <td>₹{{ item.price|floatformat:2 }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>₹{{ item.subtotal|floatformat:2 }}</td>
+            </tr>
+            {% endfor %}
         </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="3" style="text-align:right;">Total:</td>
+                <td>₹{{ order.total_price|floatformat:2 }}</td>
+            </tr>
+        </tfoot>
     </table>
 
-    <p class="total">Total Amount: ₹{{ order.total_price|floatformat:2 }}</p>  <!-- Formatting total amount with 2 decimal places -->
+    <!-- Barcode Section -->
+    <div class="barcode">
+        <p style="font-size: 13px;">Track your order with the barcode below</p>
+        <img src="data:image/png;base64,{{ barcode_base64 }}" alt="Order Barcode">
+        <p style="font-size: 12px;">Order ID: {{ order.id }}</p>
+    </div>
 
-    <p style="text-align:center; margin-top:40px;">Thank you for shopping with us!</p>
+    <!-- Footer -->
+    <div class="footer">
+        Thank you for shopping with us!<br>
+        This is a system-generated invoice and does not require a signature.
+    </div>
+
 </body>
 </html>

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin - Contact Messages</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+    {% extends 'admin_base.html' %}  {# replace with your admin dashboard base template if needed #}
+
+<div class="max-w-6xl mx-auto py-10 px-4">
+  <h1 class="text-3xl font-bold text-center mb-6">📨 Admin - Contact Messages</h1>
+
+  <div class="bg-white shadow rounded-lg overflow-x-auto">
+    <table class="min-w-full divide-y divide-gray-200">
+      <thead class="bg-gray-50">
+        <tr>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">Name</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">Email</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">Phone</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">Message</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">Date</th>
+        </tr>
+      </thead>
+      <tbody class="bg-white divide-y divide-gray-100">
+        {% for contact in contacts %}
+        <tr>
+          <td class="px-6 py-4 text-sm">{{ contact.name }}</td>
+          <td class="px-6 py-4 text-sm text-blue-600">{{ contact.email }}</td>
+          <td class="px-6 py-4 text-sm">{{ contact.phone_number }}</td>
+          <td class="px-6 py-4 text-sm">{{ contact.message|truncatechars:80 }}</td>
+          <td class="px-6 py-4 text-sm text-gray-500">{{ contact.created_at|date:"d M Y, h:i A" }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="5" class="text-center text-sm text-gray-400 px-6 py-4">No messages found.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+</body>
+</html>

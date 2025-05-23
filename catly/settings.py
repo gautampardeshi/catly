@@ -104,6 +104,10 @@ SESSION_COOKIE_AGE = 1209600  # 2 weeks
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # Session expires when the browser is closed
 SESSION_SAVE_EVERY_REQUEST = True
 
+# settings.py
+RAZORPAY_KEY_ID = 'rzp_test_E0xTCgjubEcbuI'
+RAZORPAY_SECRET_KEY = 'KF2xGLlEJfZidUlB6UoSlOtt'
+
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
