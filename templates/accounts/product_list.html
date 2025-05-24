@@ -7,7 +7,24 @@
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100">
-    <div class="container mx-auto py-10 px-4">
+
+    <!-- Navbar Start -->
+    <nav class="bg-white shadow-md fixed top-0 left-0 right-0 z-50">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <a href="{% url 'user:home' %}" class="text-xl font-bold text-gray-800 hover:text-blue-600">🐾 Catly</a>
+            <div class="space-x-4">
+                <a href="{% url 'user:home' %}" class="text-gray-700 hover:text-blue-600 font-medium">Home</a>
+                <a href="{% url 'user:product_list' %}" class="text-gray-700 hover:text-blue-600 font-medium">Products</a>
+                <a href="{% url 'user:cart_detail' %}" class="text-gray-700 hover:text-blue-600 font-medium">Cart</a>
+                <a href="{% url 'user:login' %}" class="text-gray-700 hover:text-blue-600 font-medium">Login</a>
+                <a href="{% url 'user:signup' %}" class="text-gray-700 hover:text-blue-600 font-medium">Signup</a>
+            </div>
+        </div>
+    </nav>
+    <!-- Navbar End -->
+
+    <!-- Content Start -->
+    <div class="container mx-auto py-28 px-4"> <!-- Padding top adjusted for navbar -->
         <h1 class="text-4xl font-bold text-center text-gray-800 mb-10">🛒 All Products</h1>
 
         {% if object_list %}
@@ -46,5 +63,7 @@
             <p class="text-center text-gray-500 mt-20 text-xl">😔 No products available.</p>
         {% endif %}
     </div>
+    <!-- Content End -->
+
 </body>
 </html>

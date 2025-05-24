@@ -68,12 +68,10 @@ from django.views import View
 from django.http import HttpResponse
 import weasyprint
 import tempfile
-from .models import product_Order
 from django.template.loader import get_template
 # ✅ User Dashboard View (for logged-in user)
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import TemplateView
-from .models import product_Order  # make sure the model name is correct
 from django.views.generic.edit import FormView
 from .models import Contact
 from .forms import ContactForm
@@ -168,6 +166,88 @@ class AdminDashboardView(View):
             'total_orders': total_orders,
         }
         return render(request, 'accounts/admin_dashboard.html', context)
+
+from django.db.models import Sum, Count
+from django.db.models.functions import TruncMonth
+from django.utils.timezone import now
+from datetime import timedelta
+
+def AnalyticsView(request):
+    # Last 6 months
+    six_months_ago = now() - timedelta(days=180)
+    orders = product_Order.objects.filter(created_at__gte=six_months_ago)
+
+    # Total Orders & Revenue
+    total_orders = orders.count()
+    total_revenue = orders.aggregate(total=Sum('total_price'))['total'] or 0
+
+    # Monthly Data for Chart
+    monthly_data = (
+        orders
+        .annotate(month=TruncMonth('created_at'))
+        .values('month')
+        .annotate(order_count=Count('id'), revenue=Sum('total_price'))
+        .order_by('month')
+    )
+
+    months = [entry['month'].strftime('%b') for entry in monthly_data]
+    order_counts = [entry['order_count'] for entry in monthly_data]
+    revenues = [float(entry['revenue']) for entry in monthly_data]
+
+    # Pie Chart Data (status-wise)
+    status_data = orders.values('status').annotate(count=Count('id'))
+    status_dict = {item['status']: item['count'] for item in status_data}
+
+    completed_orders = status_dict.get('Completed', 0)
+    pending_orders = status_dict.get('Pending', 0)
+    cancelled_orders = status_dict.get('Cancelled', 0)
+
+    context = {
+        'total_orders': total_orders,
+        'total_revenue': total_revenue,
+        'months': months,
+        'order_counts': order_counts,
+        'revenues': revenues,
+        'completed_orders': completed_orders,
+        'pending_orders': pending_orders,
+        'cancelled_orders': cancelled_orders,
+        'pending_orders': product_Order.objects.filter(status='Pending').count(),
+        'shipped_orders': product_Order.objects.filter(status='Shipped').count(),
+        'delivered_orders': product_Order.objects.filter(status='Delivered').count()
+    }
+    return render(request, 'accounts/admin_analytics.html', context)
+
+from django.template.loader import render_to_string
+from django.http import HttpResponse
+from weasyprint import HTML
+import tempfile
+from django.db.models import Sum
+
+def generate_pdf_report(request):
+    total_orders = product_Order.objects.count()
+    total_revenue = product_Order.objects.aggregate(Sum('total_price'))['total_price__sum'] or 0
+    pending_orders = product_Order.objects.filter(status='Pending').count()
+    shipped_orders = product_Order.objects.filter(status='Shipped').count()
+    delivered_orders = product_Order.objects.filter(status='Delivered').count()
+    # cancelled_orders = product_Order.objects.filter(status='Cancelled').count()
+
+    html_string = render_to_string('accounts/admin_report.html', {
+        'total_orders': total_orders,
+        'total_revenue': total_revenue,
+        'pending_orders': pending_orders,
+        'shipped_orders': shipped_orders,
+        'delivered_orders': delivered_orders,
+        # 'cancelled_orders': cancelled_orders,
+    })
+
+    html = HTML(string=html_string)
+    result = html.write_pdf()
+
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'inline; filename=catly_admin_report.pdf'
+    response.write(result)
+    return response
+
 
 @method_decorator(login_required, name='dispatch')
 class AdminOrderListView(View):

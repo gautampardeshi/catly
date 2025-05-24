@@ -36,7 +36,7 @@
       <li><a href="{% url 'user:user_list' %}" class="hover:text-blue-600 flex items-center gap-2">👥 Users</a></li>
       <li><a href="{% url 'user:product_list' %}" class="hover:text-blue-600 flex items-center gap-2">🛍️ Products</a></li>
       <li><a href="{% url 'user:admin_order_list' %}" class="hover:text-blue-600 flex items-center gap-2">📦 Orders</a></li>
-      <li><a href="#" class="hover:text-blue-600 flex items-center gap-2">📊 Analytics</a></li>
+      <li><a href="{% url 'user:admin-analytics' %}" class="hover:text-blue-600 flex items-center gap-2">📊 Analytics</a></li>
       <li>
         <a href="{% url 'user:admin-messages' %}" class="hover:text-blue-600 flex items-center gap-2">
           📨 Messages

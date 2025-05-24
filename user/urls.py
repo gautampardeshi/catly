@@ -9,6 +9,9 @@ urlpatterns = [
     path('logout/', CustomLogoutView.as_view(), name='logout'),
 
     path('users/', UserListView.as_view(), name='user_list'),
+    path('admin-analytics', AnalyticsView, name='admin-analytics'),
+    path('pdf-report/', generate_pdf_report, name='pdf-report'),
+
     path('admin-dashboard/users/add/', UserCreateView.as_view(), name='user_add'),
     path('admin-dashboard/users/<int:pk>/edit/', UserUpdateView.as_view(), name='user_edit'),
     path('admin-dashboard/users/<int:pk>/delete/', UserDeleteView.as_view(), name='user_delete'),
